@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.0
+ *  Hue Dimmer Switch ver 0.1.1
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -30,6 +30,7 @@ metadata {
 		attribute "lastButtonName", "string"
 		
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch"
+		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch"
 	}
 	simulator {
 	}
