@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.2
+ *  Hue Dimmer Switch ver 0.1.3
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -196,8 +196,6 @@ def configure() {
 
 def updated() {
 	log.debug "updated() called"
-	state.battRefresh = now()
-	
 	if (childDevices && device.label != state.oldLabel) {
 		childDevices.each {
 			def newLabel = getButtonName(channelNumber(it.deviceNetworkId))
@@ -213,14 +211,7 @@ def updated() {
 def installed() {
 	log.debug "installed() called"
 	def numberOfButtons = 4
-
-	if (numberOfButtons > 1) {
-		try {
-			createChildButtonDevices(numberOfButtons)
-		} catch(e) {
-			log.debug "child device creation failed."
-		}
-	}
+	createChildButtonDevices(numberOfButtons)
 	sendEvent(name: "supportedButtonValues", value: ["pushed","held"].encodeAsJson(), displayed: false)
 	sendEvent(name: "numberOfButtons", value: numberOfButtons, displayed: false)
 	numberOfButtons.times {
@@ -229,6 +220,7 @@ def installed() {
 	// These devices don't report regularly so they should only go OFFLINE when Hub is OFFLINE
 	sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
 	sendEvent(name: "lastButtonState", value: "released", displayed: false)
+	state.battRefresh = now()
 }
 
 
