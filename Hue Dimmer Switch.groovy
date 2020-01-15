@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.1
+ *  Hue Dimmer Switch ver 0.1.0
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -30,9 +30,6 @@ metadata {
 		attribute "lastButtonName", "string"
 		
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch"
-		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch"
-	}
-	simulator {
 	}
 	tiles {
 		multiAttributeTile(name: "button", type: "generic", width: 6, height: 4, canChangeIcon: true) {
@@ -62,16 +59,18 @@ metadata {
 
 private getBATTERY_MEASURE_VALUE() { 0x0020 }
 
+
 private getButtonLabel(buttonNum) {
 	def hueDimmerNames = ["On","Up","Down","Off"]
 	return hueDimmerNames[buttonNum - 1]
 }
 
+
 private getButtonName(buttonNum) {
 	return "${device.displayName} " + getButtonLabel(buttonNum)
 }
 
-// parse events into attributes
+
 def parse(String description) {
 	def result = []
 	   	
@@ -211,6 +210,7 @@ def updated() {
 
 
 def installed() {
+	log.debug "installed() called"
 	def numberOfButtons = 4
 
 	if (numberOfButtons > 1) {
@@ -234,11 +234,13 @@ def installed() {
 private void createChildButtonDevices(numberOfButtons) {
 	log.debug "Creating $numberOfButtons child buttons"
 	for (i in 1..numberOfButtons) {
-		log.debug "..Creating child $i"
-		def child = addChildDevice("smartthings", "Child Button", "${device.deviceNetworkId}:${i}", device.hubId,
+		def child = childDevices.find { it.deviceNetworkId == "${device.deviceNetworkId}:${i}" }
+		if (child == null) {
+			log.debug "..Creating child $i"
+			child = addChildDevice("smartthings", "Child Button", "${device.deviceNetworkId}:${i}", device.hubId,
 				[completedSetup: true, label: getButtonName(i),
 				 isComponent: true, componentName: "button$i", componentLabel: getButtonLabel(i)])
-
+		}
 		child.sendEvent(name: "supportedButtonValues", value: ["pushed", "held"].encodeAsJSON(), displayed: false)
 		child.sendEvent(name: "numberOfButtons", value: 1, displayed: false)
 		child.sendEvent(name: "button", value: "pushed", data: [buttonNumber: 1], displayed: false)
