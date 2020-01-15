@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.3
+ *  Hue Dimmer Switch ver 0.1.4
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -227,7 +227,7 @@ def installed() {
 private void createChildButtonDevices(numberOfButtons) {
 	log.debug "Creating $numberOfButtons child buttons"
 	for (i in 1..numberOfButtons) {
-		def child = childDevices.find { it.deviceNetworkId == "${device.deviceNetworkId}:${i}" }
+		def child = childDevices?.find { it.deviceNetworkId == "${device.deviceNetworkId}:${i}" }
 		if (child == null) {
 			log.debug "..Creating child $i"
 			child = addChildDevice("smartthings", "Child Button", "${device.deviceNetworkId}:${i}", device.hubId,
