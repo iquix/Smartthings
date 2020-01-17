@@ -14,7 +14,7 @@
  *
  */
 metadata {
-	definition(name: "DW Multi Switch", namespace: "ShinJjang", author: "ShinJjang", mnmn: "SmartThings", ocfDeviceType: "oic.d.thermostat") {  //vid:"generic-temperature"
+	definition(name: "DW Multi Switch", namespace: "ShinJjang", author: "ShinJjang/iquix", mnmn: "SmartThings", ocfDeviceType: "oic.d.thermostat") {  //vid:"generic-temperature"
 	capability "Temperature Measurement"
 	capability "Relative Humidity Measurement"
 	//capability "Tamper Alert"
