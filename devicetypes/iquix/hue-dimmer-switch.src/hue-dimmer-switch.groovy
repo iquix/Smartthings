@@ -17,7 +17,7 @@ import groovy.json.JsonOutput
 import physicalgraph.zigbee.zcl.DataType
 
 metadata {
-	definition (name: "Hue Dimmer Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "x.com.st.d.remotecontroller", mcdSync: true) {
+	definition (name: "Hue Dimmer Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "x.com.st.d.remotecontroller", mcdSync: true, mnmn: "SmartThings", vid: "generic-4-button") {
 		capability "Configuration"
 		capability "Battery"
 		capability "Refresh"
@@ -232,7 +232,7 @@ private void createChildButtonDevices(numberOfButtons) {
 			log.debug "..Creating child $i"
 			child = addChildDevice("smartthings", "Child Button", "${device.deviceNetworkId}:${i}", device.hubId,
 				[completedSetup: true, label: getButtonName(i),
-				 isComponent: true, componentName: "button$i", componentLabel: getButtonLabel(i)])
+				 isComponent: true, componentName: "button$i", componentLabel: "Button "+getButtonLabel(i)])
 		}
 		child.sendEvent(name: "supportedButtonValues", value: ["pushed", "held"].encodeAsJSON(), displayed: false)
 		child.sendEvent(name: "numberOfButtons", value: 1, displayed: false)
