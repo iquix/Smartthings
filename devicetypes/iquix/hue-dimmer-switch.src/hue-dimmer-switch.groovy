@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.4
+ *  Hue Dimmer Switch ver 0.1.5
  *
  *  Copyright 2020 Jaewon Park
  *
