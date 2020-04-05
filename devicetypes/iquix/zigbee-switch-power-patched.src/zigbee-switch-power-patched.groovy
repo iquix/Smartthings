@@ -27,7 +27,7 @@ metadata {
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702"
 		
 		// Heiman
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0006, 0009, 0702, 0B04", manufacturer: "Heiman", deviceJoinName: "Heiman Power Plug" 
+		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "Heiman SmartPlug 16A"
 		
 		// Dawon
 		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", outClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", manufacturer: "DAWON_DNS", model: "PM-B530-ZB", deviceJoinName: "DAWON SmartPlug 16A" 
