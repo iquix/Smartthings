@@ -1,5 +1,5 @@
 /**
- *  Galaxy Home Music Switch ver 0.1.0
+ *  Galaxy Home Music Switch ver 0.1.1
  *  Copyright 2020 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@ metadata {
 	definition (name: "GalaxyHome Music Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.switch") {
 		capability "Switch"
 		capability "Actuator"
+        command "playURI", ["string"]
 	}
 	preferences {
 		input name: "galaxyHomeAddr", title:"local IP address of Galaxy Home", type: "string"
