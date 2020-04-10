@@ -1,5 +1,5 @@
 /**
- *  Galaxy Home Music Switch ver 0.1.3
+ *  Galaxy Home Music Switch ver 0.1.
  *  Copyright 2020 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -62,7 +62,7 @@ def configure() {
 
 def playURI(u) {
 	if (settings.galaxyHomeAddr != null) {
-    	u = URLEncoder.encode(u, "UTF-8").replaceAll(/\+/,'%20').replace('%3A',':').replace('%2F','/')replace('%40','@').replace('%25','%')
+    	u = URLEncoder.encode(u, "UTF-8").replaceAll(/\+/,'%20').replace('%3A',':').replace('%2F','/')replace('%40','@').replace('%25','%').replace('%3F','?')
 		send(u)
 		send("?play")
 	} else {
