@@ -1,5 +1,5 @@
 /**
- *  Galaxy Home Music Switch ver 0.1.1
+ *  Galaxy Home Music Switch ver 0.1.2
  *  Copyright 2020 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -17,7 +17,7 @@ metadata {
 	definition (name: "GalaxyHome Music Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.switch") {
 		capability "Switch"
 		capability "Actuator"
-        command "playURI", ["string"]
+		command "playURI", ["string"]
 	}
 	preferences {
 		input name: "galaxyHomeAddr", title:"local IP address of Galaxy Home", type: "string"
@@ -37,12 +37,12 @@ metadata {
 
 def on() {
 	if (settings.mediauri != null) {
-    	playURI(settings.mediauri)
+		playURI(settings.mediauri)
 	} else {
 		log.error "mediauri is not set. Please go to settings and setup mediauri"
 	}	
 	sendEvent(name: "switch", value: "on")
-    runIn(1, off)
+	runIn(1, off)
 }
 
 def off() {
@@ -64,20 +64,20 @@ def playURI(u) {
 	if (settings.galaxyHomeAddr != null) {
 		send(u)
 		send("?play")
-    } else {
-    	log.debug "galaxyHomeAddr is not set. Please go to settings and setup galaxyHomeAddr"
-    }
+	} else {
+		log.debug "galaxyHomeAddr is not set. Please go to settings and setup galaxyHomeAddr"
+	}
 }
 
 private send(s) {
 	def action
-    def data
+	def data
 	if (s == "?play") {
 		action = "\"urn:schemas-upnp-org:service:AVTransport:1#Play\""
 		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:Play xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>"
 	} else {
 		action = "\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\""
-		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><CurrentURI>"+s+"</CurrentURI><CurrentURIMetaData></CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>"
+		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><CurrentURI>"+s.replace(" ", "%20")+"</CurrentURI><CurrentURIMetaData></CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>"
 	}
 	def options = [
 		"method": "POST",
@@ -89,7 +89,7 @@ private send(s) {
 		],
 		"body": data
 	]
-    log.debug options
+	log.debug options
 	def myhubAction = new physicalgraph.device.HubAction(options, null)
 	sendHubCommand(myhubAction)
 }
