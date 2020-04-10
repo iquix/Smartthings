@@ -1,5 +1,5 @@
 /**
- *  Galaxy Home Music Switch ver 0.1.2
+ *  Galaxy Home Music Switch ver 0.1.3
  *  Copyright 2020 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -62,6 +62,7 @@ def configure() {
 
 def playURI(u) {
 	if (settings.galaxyHomeAddr != null) {
+    	u = URLEncoder.encode(u, "UTF-8").replaceAll(/\+/,'%20').replace('%3A',':').replace('%2F','/')replace('%40','@').replace('%25','%')
 		send(u)
 		send("?play")
 	} else {
@@ -77,7 +78,7 @@ private send(s) {
 		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:Play xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>"
 	} else {
 		action = "\"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI\""
-		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><CurrentURI>"+s.replace(" ", "%20")+"</CurrentURI><CurrentURIMetaData></CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>"
+		data = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\"><InstanceID>0</InstanceID><CurrentURI>"+s+"</CurrentURI><CurrentURIMetaData></CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>"
 	}
 	def options = [
 		"method": "POST",
