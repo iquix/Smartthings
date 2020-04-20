@@ -35,6 +35,11 @@ metadata {
 	}
 }
 
+def parse(description) {
+	def msg = parseLanMessage(description)
+	log.debug msg
+}
+
 def on() {
 	if (settings.mediauri != null) {
 		playURI(settings.mediauri)
@@ -93,4 +98,34 @@ private send(s) {
 	log.debug options
 	def myhubAction = new physicalgraph.device.HubAction(options, null)
 	sendHubCommand(myhubAction)
+}
+
+//--------------------------------------------
+
+private getCallBackAddress()
+{
+	device.hub.getDataValue("localIP") + ":" + device.hub.getDataValue("localSrvPortTCP")
+}
+
+private subscribeAction(path) {
+	def address = getCallBackAddress()
+	def result = new physicalgraph.device.HubAction(
+		method: "SUBSCRIBE",
+		path: path,
+		headers: [
+			HOST: (settings.galaxyHomeAddr+":9197"),
+			CALLBACK: "<http://${address}/notify>",
+			NT: "upnp:event",
+			TIMEOUT: "Second-300"])
+	sendHubCommand(result)
+}
+
+private unsubscribeAction(path, sid) {
+	def result = new physicalgraph.device.HubAction(
+		method: "UNSUBSCRIBE",
+		path: path,
+		headers: [
+			HOST: (settings.galaxyHomeAddr+":9197"),
+			SID: "uuid:${sid}"])
+	sendHubCommand(result)
 }
