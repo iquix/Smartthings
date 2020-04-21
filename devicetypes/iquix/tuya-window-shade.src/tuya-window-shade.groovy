@@ -30,7 +30,7 @@ metadata {
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
 		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
-        input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
+		input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
