@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.1.0)
+ *  Tuya Window Shade (v.0.2.0)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -13,7 +13,6 @@
  */
 
 import groovy.json.JsonOutput
-import physicalgraph.zigbee.zcl.DataType
 
 metadata {
 	definition(name: "Tuya Window Shade", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.blind", vid: "generic-shade") {
@@ -22,14 +21,16 @@ metadata {
 		capability "Window Shade"
 		capability "Window Shade Preset"
 		capability "Switch Level"
-
+		
 		command "pause"
 
-		fingerprint endpointId: "0x01", profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", deviceJoinName: "TUYA Curtain"
+		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0100", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", deviceJoinName: "Zemismart Tuya Curtain"
 	}
 
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
+		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
+        input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -69,34 +70,41 @@ private getSETDATA() { 0x00 }
 // Parse incoming device messages to generate events
 def parse(String description) {
 	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
-		Map descMap = zigbee.parseDescriptionAsMap(description)        
+		Map descMap = zigbee.parseDescriptionAsMap(description)		
 		if (descMap?.clusterInt==CLUSTER_TUYA) {
-        	log.debug descMap
+			log.debug descMap
 			if ( descMap?.command == "01" || descMap?.command == "02" ) {
 				def dp = zigbee.convertHexToInt(descMap?.data[3]+descMap?.data[2])
-                log.debug "dp = " + dp
+				log.debug "dp = " + dp
 				switch (dp) {
 					case 1031: // 0x04 0x07: Started moving (triggered by transmitter or pulling on curtain)
-                    	break
-					case 1025: // 0x04 0x01: Confirm opening/closing/stopping (triggered from Zigbee)
-                    	if (descMap.data[6] == "00") {
-                        	log.debug "opening"
-                            levelEventMoving(100)
-                        } else if (descMap.data[6] == "02") {
-                        	log.debug "closing"
-                            levelEventMoving(0)
-                        }
-                    	break
+						if (device.currentValue("level")==0) {
+							log.debug "moving from position 0 : must be opening"
+							levelEventMoving(100)
+						} else if (device.currentValue("level")==100) {
+							log.debug "moving from position 100 : must be closing"
+							levelEventMoving(0)
+						}
+						break
+					case 1025: // 0x04 0x01: Opening/closing/stopping (triggered from Zigbee)
+						if (descMap.data[6] == ((REVERSE_MODE) ? "00" : "02")) {
+							log.debug "opening"
+							levelEventMoving(100)
+						} else if (descMap.data[6] == ((REVERSE_MODE) ? "02" : "00")) {
+							log.debug "closing"
+							levelEventMoving(0)
+						}
+						break
 					case 514: // 0x02 0x02: Started moving to position (triggered from Zigbee)
-                    	def pos = 100 - zigbee.convertHexToInt(descMap.data[9])
-						log.debug "moving to position :"+pos
-                        levelEventMoving(pos)
-                        break
+						def pos = levelVal(zigbee.convertHexToInt(descMap.data[9]))
+						log.debug "moving to position: "+pos
+						levelEventMoving(pos)
+						break
 					case 515: // 0x02 0x03: Arrived at position
-                    	def pos = 100 - zigbee.convertHexToInt(descMap.data[9])
-                    	log.debug "arrived at position :"+pos
-                    	levelEventArrived(pos)
-                        break
+						def pos = levelVal(zigbee.convertHexToInt(descMap.data[9]))
+						log.debug "arrived at position: "+pos
+						levelEventArrived(pos)
+						break
 				}
 			}
 		}
@@ -114,41 +122,41 @@ private levelEventMoving(currentLevel) {
 		} else if (lastLevel > currentLevel) {
 			sendEvent([name:"windowShade", value: "closing"])
 		}
-    }
+	}
 }
 
 private levelEventArrived(level) {
 	if (level == 0) {
-    	sendEvent(name: "windowShade", value: "closed")
-    } else if (level == 100) {
-    	sendEvent(name: "windowShade", value: "open")
-    } else if (level > 0 && level < 100) {
+		sendEvent(name: "windowShade", value: "closed")
+	} else if (level == 100) {
+		sendEvent(name: "windowShade", value: "open")
+	} else if (level > 0 && level < 100) {
 		sendEvent(name: "windowShade", value: "partially open")
-    } else {
-    	sendEvent(name: "windowShade", value: "unknown")
-        return
-    }
-    sendEvent(name: "level", value: (level))
+	} else {
+		sendEvent(name: "windowShade", value: "unknown")
+		return
+	}
+	sendEvent(name: "level", value: (level))
 }
 
 def close() {
 	log.info "close()"
 	def currentLevel = device.currentValue("level")
-    if (currentLevel == 0) {
-    	sendEvent(name: "windowShade", value: "closed")
-        return
-    }
-	sendTuyaCommand("0104", "00", "0102")
+	if (currentLevel == 0) {
+		sendEvent(name: "windowShade", value: "closed")
+		return
+	}
+	sendTuyaCommand("0104", "00", (REVERSE_MODE) ? "0102" : "0100")
 }
 
 def open() {
 	log.info "open()"
-    def currentLevel = device.currentValue("level")
-    if (currentLevel == 100) {
-    	sendEvent(name: "windowShade", value: "open")
-        return
-    }
-	sendTuyaCommand("0104", "00", "0100")
+	def currentLevel = device.currentValue("level")
+	if (currentLevel == 100) {
+		sendEvent(name: "windowShade", value: "open")
+		return
+	}
+	sendTuyaCommand("0104", "00", (REVERSE_MODE) ? "0100" : "0102")
 }
 
 def pause() {
@@ -158,17 +166,17 @@ def pause() {
 
 def setLevel(data, rate = null) {
 	log.info "setLevel("+data+")"
-    def currentLevel = device.currentValue("level")
-    if (currentLevel == data) {
-    	sendEvent(name: "level", value: currentLevel)
-        return
-    }
-	sendTuyaCommand("0202", "00", "04000000"+zigbee.convertToHexString(100-data, 2))
+	def currentLevel = device.currentValue("level")
+	if (currentLevel == data) {
+		sendEvent(name: "level", value: currentLevel)
+		return
+	}
+	sendTuyaCommand("0202", "00", "04000000"+zigbee.convertToHexString(levelVal(data), 2))
 }
 
 
 def presetPosition() {
-    setLevel(preset ?: 50)
+	setLevel(preset ?: 50)
 }
 
 def installed() {
@@ -185,4 +193,16 @@ private sendTuyaCommand(dp, fn, data) {
 
 private rand(n) {
 	return (new Random().nextInt(n))
+}
+
+private getREVERSE_MODE() { 
+	return (reverse == "Reverse")
+}
+
+private levelVal(n) {
+    if (fixpercent == "Fix percent") {
+		return (int)((REVERSE_MODE) ? n : 100-n)
+	} else {
+		return (int)((REVERSE_MODE) ? 100-n : n)    
+	}
 }
