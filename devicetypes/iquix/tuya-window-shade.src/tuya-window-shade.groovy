@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.0)
+ *  Tuya Window Shade (v.0.2.1)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -24,7 +24,7 @@ metadata {
 		
 		command "pause"
 
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0100", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", deviceJoinName: "Zemismart Tuya Curtain"
+		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0100", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", deviceJoinName: "Tuya Curtain"
 	}
 
 	preferences {
@@ -185,6 +185,7 @@ def installed() {
 
 def configure() {
 	log.info "configure()"
+    setLevel(50)
 }
 
 private sendTuyaCommand(dp, fn, data) {
