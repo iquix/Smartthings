@@ -195,8 +195,8 @@ def configure() {
 	setLevel(50)
 }
 
-private sendTuyaCommand(dp, dp_type, data) {
-	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + PACKET_ID + dp + dp_type + zigbee.convertToHexString(data.length()/2, 4) + data )
+private sendTuyaCommand(dp, dp_type, fncmd) {
+	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + PACKET_ID + dp + dp_type + zigbee.convertToHexString(fncmd.length()/2, 4) + fncmd )
 }
 
 private getPACKET_ID() {
