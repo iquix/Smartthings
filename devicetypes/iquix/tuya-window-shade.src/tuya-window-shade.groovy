@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3.1)
+ *  Tuya Window Shade (v.0.2.3.2)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -81,8 +81,8 @@ def parse(String description) {
 		if (descMap?.clusterInt==CLUSTER_TUYA) {
 			if ( descMap?.command == "01" || descMap?.command == "02" ) {
 				def dp = zigbee.convertHexToInt(descMap?.data[2])
-				def data = descMap?.data[6..-1]
-				log.debug "dp=" + dp + "  data=" + data
+				def fncmd = descMap?.data[6..-1]
+				log.debug "dp=" + dp + "  fncmd=" + fncmd
 				switch (dp) {
 					case 0x07: // 0x07: Work state -- Started moving (triggered by transmitter or pulling on curtain)
 						if (device.currentValue("level")==0) {
@@ -94,21 +94,21 @@ def parse(String description) {
 						}
 						break
 					case 0x01: // 0x01: Control -- Opening/closing/stopping (triggered from Zigbee)
-						if (data[0] == ((REVERSE_MODE) ? "00" : "02")) {
+						if (fncmd[0] == ((REVERSE_MODE) ? "00" : "02")) {
 							log.debug "opening"
 							levelEventMoving(100)
-						} else if (data[0] == ((REVERSE_MODE) ? "02" : "00")) {
+						} else if (fncmd[0] == ((REVERSE_MODE) ? "02" : "00")) {
 							log.debug "closing"
 							levelEventMoving(0)
 						}
 						break
 					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
-						def pos = levelVal(zigbee.convertHexToInt(data[3]))
+						def pos = levelVal(zigbee.convertHexToInt(fncmd[3]))
 						log.debug "moving to position: "+pos
 						levelEventMoving(pos)
 						break
 					case 0x03: // 0x03: Percent state -- Arrived at position
-						def pos = levelVal(zigbee.convertHexToInt(data[3]))
+						def pos = levelVal(zigbee.convertHexToInt(fncmd[3]))
 						log.debug "arrived at position: "+pos
 						levelEventArrived(pos)
 						break
