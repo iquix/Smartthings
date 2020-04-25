@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.2)
+ *  Tuya Window Shade (v.0.2.3)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -67,17 +67,24 @@ metadata {
 private getCLUSTER_TUYA() { 0xEF00 }
 private getSETDATA() { 0x00 }
 
+// tuya DP type
+private getDP_TYPE_BOOL() { "01" }
+private getDP_TYPE_VALUE() { "02" }
+private getDP_TYPE_ENUM() { "04" }
+
+
 // Parse incoming device messages to generate events
 def parse(String description) {
 	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
 		Map descMap = zigbee.parseDescriptionAsMap(description)		
+		log.debug descMap
 		if (descMap?.clusterInt==CLUSTER_TUYA) {
-			log.debug descMap
 			if ( descMap?.command == "01" || descMap?.command == "02" ) {
-				def dp = zigbee.convertHexToInt(descMap?.data[3]+descMap?.data[2])
-				log.debug "dp = " + dp
+				def dp = zigbee.convertHexToInt(descMap?.data[2])
+				def data = descMap?.data[6..-1]
+				log.debug "dp=" + dp + "  data=" + data
 				switch (dp) {
-					case 1031: // 0x04 0x07: Started moving (triggered by transmitter or pulling on curtain)
+					case 0x07: // 0x07: Work state -- Started moving (triggered by transmitter or pulling on curtain)
 						if (device.currentValue("level")==0) {
 							log.debug "moving from position 0 : must be opening"
 							levelEventMoving(100)
@@ -86,22 +93,22 @@ def parse(String description) {
 							levelEventMoving(0)
 						}
 						break
-					case 1025: // 0x04 0x01: Opening/closing/stopping (triggered from Zigbee)
-						if (descMap.data[6] == ((REVERSE_MODE) ? "00" : "02")) {
+					case 0x01: // 0x01: Control -- Opening/closing/stopping (triggered from Zigbee)
+						if (data[0] == ((REVERSE_MODE) ? "00" : "02")) {
 							log.debug "opening"
 							levelEventMoving(100)
-						} else if (descMap.data[6] == ((REVERSE_MODE) ? "02" : "00")) {
+						} else if (data[0] == ((REVERSE_MODE) ? "02" : "00")) {
 							log.debug "closing"
 							levelEventMoving(0)
 						}
 						break
-					case 514: // 0x02 0x02: Started moving to position (triggered from Zigbee)
-						def pos = levelVal(zigbee.convertHexToInt(descMap.data[9]))
+					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
+						def pos = levelVal(zigbee.convertHexToInt(data[3]))
 						log.debug "moving to position: "+pos
 						levelEventMoving(pos)
 						break
-					case 515: // 0x02 0x03: Arrived at position
-						def pos = levelVal(zigbee.convertHexToInt(descMap.data[9]))
+					case 0x03: // 0x03: Percent state -- Arrived at position
+						def pos = levelVal(zigbee.convertHexToInt(data[3]))
 						log.debug "arrived at position: "+pos
 						levelEventArrived(pos)
 						break
@@ -146,7 +153,7 @@ def close() {
 		sendEvent(name: "windowShade", value: "closed")
 		return
 	}
-	sendTuyaCommand("0104", "00", (REVERSE_MODE) ? "0102" : "0100")
+	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "02" : "00")
 }
 
 def open() {
@@ -156,12 +163,12 @@ def open() {
 		sendEvent(name: "windowShade", value: "open")
 		return
 	}
-	sendTuyaCommand("0104", "00", (REVERSE_MODE) ? "0100" : "0102")
+	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "00" : "02")
 }
 
 def pause() {
 	log.info "pause()"
-	sendTuyaCommand("0104", "00", "0101")
+	sendTuyaCommand("01", DP_TYPE_ENUM, "01")
 }
 
 def setLevel(data, rate = null) {
@@ -171,7 +178,7 @@ def setLevel(data, rate = null) {
 		sendEvent(name: "level", value: currentLevel)
 		return
 	}
-	sendTuyaCommand("0202", "00", "04000000"+zigbee.convertToHexString(levelVal(data), 2))
+	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
 
@@ -185,11 +192,11 @@ def installed() {
 
 def configure() {
 	log.info "configure()"
-    setLevel(50)
+	setLevel(50)
 }
 
-private sendTuyaCommand(dp, fn, data) {
-	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + zigbee.convertToHexString(rand(256), 2) + dp + fn + data)
+private sendTuyaCommand(dp, dp_type, data) {
+	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + zigbee.convertToHexString(rand(256), 2) + dp + dp_type + zigbee.convertToHexString(data.length()/2, 4) + data )
 }
 
 private rand(n) {
@@ -201,9 +208,9 @@ private getREVERSE_MODE() {
 }
 
 private levelVal(n) {
-    if (fixpercent == "Fix percent") {
+	if (fixpercent == "Fix percent") {
 		return (int)((REVERSE_MODE) ? n : 100-n)
 	} else {
-		return (int)((REVERSE_MODE) ? 100-n : n)    
+		return (int)((REVERSE_MODE) ? 100-n : n)	
 	}
 }
