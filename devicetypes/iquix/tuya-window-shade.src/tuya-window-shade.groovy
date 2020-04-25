@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3)
+ *  Tuya Window Shade (v.0.2.3.1)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -196,11 +196,12 @@ def configure() {
 }
 
 private sendTuyaCommand(dp, dp_type, data) {
-	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + zigbee.convertToHexString(rand(256), 2) + dp + dp_type + zigbee.convertToHexString(data.length()/2, 4) + data )
+	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + PACKET_ID + dp + dp_type + zigbee.convertToHexString(data.length()/2, 4) + data )
 }
 
-private rand(n) {
-	return (new Random().nextInt(n))
+private getPACKET_ID() {
+	state.packetID = ((state.packetID ?: 0) + 1 ) % 256
+	return zigbee.convertToHexString(state.packetID)
 }
 
 private getREVERSE_MODE() { 
@@ -208,9 +209,5 @@ private getREVERSE_MODE() {
 }
 
 private levelVal(n) {
-	if (fixpercent == "Fix percent") {
-		return (int)((REVERSE_MODE) ? n : 100-n)
-	} else {
-		return (int)((REVERSE_MODE) ? 100-n : n)	
-	}
+	return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
 }
