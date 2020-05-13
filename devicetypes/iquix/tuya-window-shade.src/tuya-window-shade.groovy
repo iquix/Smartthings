@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3.2)
+ *  Tuya Window Shade (v.0.2.3.4)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -21,16 +21,16 @@ metadata {
 		capability "Window Shade"
 		capability "Window Shade Preset"
 		capability "Switch Level"
-		
+
 		command "pause"
 
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0100", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", deviceJoinName: "Tuya Curtain"
+		//fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", deviceJoinName: "Zemismart Tuya Zigbee Curtain"
 	}
 
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
-		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
-		input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
+		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor. [WARNING!! Please set curtain position to 50% before changing this preference option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
+		//input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -186,13 +186,13 @@ def presetPosition() {
 	setLevel(preset ?: 50)
 }
 
-def installed() {
-	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-}
-
 def configure() {
 	log.info "configure()"
-	setLevel(50)
+	if(state?.init != true) {
+		state.init = true
+		sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
+		setLevel(50)
+	}
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
@@ -209,5 +209,6 @@ private getREVERSE_MODE() {
 }
 
 private levelVal(n) {
-	return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
+	//return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
+	return (int)(REVERSE_MODE ? 100-n : n)
 }
