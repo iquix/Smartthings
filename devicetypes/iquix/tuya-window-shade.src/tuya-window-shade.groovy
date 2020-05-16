@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3.4)
+ *  Tuya Window Shade (v.0.2.3.5)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@ metadata {
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
 		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor. [WARNING!! Please set curtain position to 50% before changing this preference option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
-		//input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
+		input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -209,6 +209,6 @@ private getREVERSE_MODE() {
 }
 
 private levelVal(n) {
-	//return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
-	return (int)(REVERSE_MODE ? 100-n : n)
+	return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
+	//return (int)(REVERSE_MODE ? 100-n : n)
 }
