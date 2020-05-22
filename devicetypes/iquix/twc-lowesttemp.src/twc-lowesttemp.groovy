@@ -62,6 +62,6 @@ def refresh() {
 	
 	log.debug "response lowest temp: ${w.temperatureMin}"
 	log.debug "response highest temp: ${w.temperatureMax}"
-	sendEvent(name: "temperature", value: tempMin, unit: temperatureScale)
+	sendEvent(name: "temperature", value: tempMin, unit: temperatureScale, displayed: true)
 	sendEvent(name: "lastFetch", value: (new Date(now())).format("MMM d HH:mm:ss", location.timeZone))
 }

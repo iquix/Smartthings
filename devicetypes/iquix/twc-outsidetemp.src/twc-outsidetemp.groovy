@@ -73,7 +73,7 @@ def refresh() {
 	
 	log.debug "current temperature: ${temp}"
 	log.debug "current weather: ${weather}"
-	sendEvent(name: "temperature", value: temp, unit: temperatureScale)
+	sendEvent(name: "temperature", value: temp, unit: temperatureScale, displayed: true)
 	sendEvent(name: "weather", value: weather)
 	sendEvent(name: "lastFetch", value: (new Date(now())).format("MMM d HH:mm:ss", location.timeZone))
 }

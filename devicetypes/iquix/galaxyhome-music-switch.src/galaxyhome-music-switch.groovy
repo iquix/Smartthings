@@ -1,5 +1,5 @@
 /**
- *  Galaxy Home Music Switch ver 0.1.4
+ *  Galaxy Home Music Switch ver 0.1.5
  *  Copyright 2020 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -41,23 +41,23 @@ def on() {
 	} else {
 		log.error "mediauri is not set. Please go to settings and setup mediauri"
 	}	
-	sendEvent(name: "switch", value: "on")
+	sendEvent(name: "switch", value: "on", displayed: true)
 	runIn(1, off)
 }
 
 def off() {
-	sendEvent(name: "switch", value: "off")
+	sendEvent(name: "switch", value: "off", displayed: true)
 }
 
 
 def installed() {
 	log.debug "installed()"
-	sendEvent(name: "switch", value: "off")
+	sendEvent(name: "switch", value: "off", displayed: true)
 }
 
 def configure() {
 	log.debug "configure()"
-	sendEvent(name: "switch", value: "off")
+	sendEvent(name: "switch", value: "off", displayed: true)
 }
 
 def playURI(u) {

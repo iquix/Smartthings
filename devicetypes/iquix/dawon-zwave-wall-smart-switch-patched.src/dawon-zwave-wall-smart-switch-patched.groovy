@@ -328,7 +328,7 @@ private changeSwitch(endpoint, value) {
 		String childDni = "${device.deviceNetworkId}:$endpoint"
 		def child = childDevices.find { it.deviceNetworkId == childDni }
 		log.debug "changeSwitch: endpoint '${endpoint}', value: '${value}')"
-		result << child.sendEvent(name: "switch", value: value)
+		result << child.sendEvent(name: "switch", value: value, displayed: true)
 		log.debug "changeSwitch: result '${result}'"
 	}
 	result

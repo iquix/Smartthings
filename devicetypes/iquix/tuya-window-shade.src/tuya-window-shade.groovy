@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3.5)
+ *  Tuya Window Shade (v.0.2.3.6)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -125,32 +125,32 @@ private levelEventMoving(currentLevel) {
 		log.debug "Ignore invalid reports"
 	} else {
 		if (lastLevel < currentLevel) {
-			sendEvent([name:"windowShade", value: "opening"])
+			sendEvent([name:"windowShade", value: "opening", displayed: true])
 		} else if (lastLevel > currentLevel) {
-			sendEvent([name:"windowShade", value: "closing"])
+			sendEvent([name:"windowShade", value: "closing", displayed: true])
 		}
 	}
 }
 
 private levelEventArrived(level) {
 	if (level == 0) {
-		sendEvent(name: "windowShade", value: "closed")
+		sendEvent(name: "windowShade", value: "closed", displayed: true)
 	} else if (level == 100) {
-		sendEvent(name: "windowShade", value: "open")
+		sendEvent(name: "windowShade", value: "open", displayed: true)
 	} else if (level > 0 && level < 100) {
-		sendEvent(name: "windowShade", value: "partially open")
+		sendEvent(name: "windowShade", value: "partially open", displayed: true)
 	} else {
-		sendEvent(name: "windowShade", value: "unknown")
+		sendEvent(name: "windowShade", value: "unknown", displayed: true)
 		return
 	}
-	sendEvent(name: "level", value: (level))
+	sendEvent(name: "level", value: (level), displayed: true)
 }
 
 def close() {
 	log.info "close()"
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == 0) {
-		sendEvent(name: "windowShade", value: "closed")
+		sendEvent(name: "windowShade", value: "closed", displayed: true)
 		return
 	}
 	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "02" : "00")
@@ -160,7 +160,7 @@ def open() {
 	log.info "open()"
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == 100) {
-		sendEvent(name: "windowShade", value: "open")
+		sendEvent(name: "windowShade", value: "open", displayed: true)
 		return
 	}
 	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "00" : "02")
@@ -175,7 +175,7 @@ def setLevel(data, rate = null) {
 	log.info "setLevel("+data+")"
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == data) {
-		sendEvent(name: "level", value: currentLevel)
+		sendEvent(name: "level", value: currentLevel, displayed: true)
 		return
 	}
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
