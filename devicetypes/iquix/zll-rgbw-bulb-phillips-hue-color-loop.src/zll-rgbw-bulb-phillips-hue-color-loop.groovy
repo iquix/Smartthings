@@ -124,6 +124,7 @@ def parse(String description) {
 				event.value = Math.max(Math.min(6500, event.value),2000)
 				setGenericName(event.value)
 			}
+			event.displayed = true
 			sendEvent(event)
 		}
 	}
@@ -313,19 +314,19 @@ def setLoopTime(value) {
 def startLoop(Map params) {
 	// direction either increments or decrements the hue value: "Up" will increment, "Down" will decrement
 	def direction = (params?.direction != null) ? params.direction : device.currentValue("loopDirection")
-    sendEvent(name: "loopDirection", value: direction)
-    def dirHex = direction == "Down" ? "00" : "01"
+	sendEvent(name: "loopDirection", value: direction)
+	def dirHex = direction == "Down" ? "00" : "01"
 	
 	// time parameter is the time in seconds for a full loop
 	def cycle = (params?.time != null) ? params.time : device.currentValue("loopTime")
-    sendEvent(name:"loopTime", value: cycle)
+	sendEvent(name:"loopTime", value: cycle)
 	def finTime = zigbee.swapEndianHex(zigbee.convertToHexString(cycle, 4))
 	
 	def cmds = []
-    
+	
 	cmds += zigbee.on()	
 	if (params?.hue != null) {  
-    	log.debug "activating color loop from specified hue"
+		log.debug "activating color loop from specified hue"
 		def sHue = Math.min(Math.round(params.hue * 255 / 100), 255)
 		def finHue = zigbee.swapEndianHex(zigbee.convertToHexString(sHue, 4))
 		cmds += zigbee.command(COLOR_CONTROL_CLUSTER, COLOR_LOOP_SET_COMMAND, "0F 01 ${dirHex} ${finTime} ${finHue}")
