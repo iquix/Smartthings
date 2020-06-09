@@ -189,11 +189,8 @@ def presetPosition() {
 
 def configure() {
 	log.info "configure()"
-	if(state?.init != true) {
-		state.init = true
-		sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-		setLevel(50)
-	}
+	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
+	setLevel(50)
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
