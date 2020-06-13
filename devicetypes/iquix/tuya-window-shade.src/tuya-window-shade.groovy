@@ -26,7 +26,7 @@ metadata {
 
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", model: "TS0601", deviceJoinName: "Tuya Window Shade"
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", model: "owvfni3", deviceJoinName: "Tuya Window Shade"
-        fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", model: "mcdj3aq", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", model: "mcdj3aq", deviceJoinName: "Tuya Window Shade"
 	}
 
 	preferences {
