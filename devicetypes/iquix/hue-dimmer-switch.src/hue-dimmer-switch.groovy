@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.5
+ *  Hue Dimmer Switch ver 0.1.6
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -153,7 +153,7 @@ private getButtonResult(rawValue) {
 	result << createEvent(name: "lastButtonState", value: buttonStateTxt, displayed: false)
 	
 	if (buttonStateTxt == "pushed" || buttonStateTxt == "held") {
-		result << createEvent(name: "button", value: buttonStateTxt, data: [buttonNumber: button], descriptionText: descriptionText, isStateChange: true)
+		result << createEvent(name: "button", value: buttonStateTxt, data: [buttonNumber: button], descriptionText: descriptionText, isStateChange: true, displayed: false)
 		sendButtonEvent(button, buttonStateTxt)
 		if (buttonStateTxt == "pushed") {
 			runIn(1, "setReleased")
