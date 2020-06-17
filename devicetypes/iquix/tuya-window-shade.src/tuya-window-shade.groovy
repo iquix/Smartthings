@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.3.8)
+ *  Tuya Window Shade (v.0.2.4.0)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -142,7 +142,9 @@ private levelEventArrived(level) {
 	} else if (level > 0 && level < 100) {
 		sendEvent(name: "windowShade", value: "partially open", displayed: true)
 	} else {
+		log.debug "Position value error : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
 		sendEvent(name: "windowShade", value: "unknown", displayed: true)
+		sendEvent(name: "level", value: 50, displayed: true)
 		return
 	}
 	sendEvent(name: "level", value: (level), displayed: true)
@@ -192,6 +194,10 @@ def configure() {
 	log.info "configure()"
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	setLevel(50)
+}
+
+def updated() {
+	log.info "updated()"
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
