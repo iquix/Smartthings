@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.4.1)
+ *  Tuya Window Shade (v.0.2.4.2)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -193,12 +193,18 @@ def presetPosition() {
 def configure() {
 	log.info "configure()"
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-	setLevel(50)
+	forceLevel50()
 }
 
 def updated() {
 	log.info "updated()"
-    setLevel(50)
+	forceLevel50()
+}
+
+private forceLevel50() {
+	log.info "forceLevel50()"
+	sendEvent(name: "level", value: 50, displayed: false)
+	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(50), 8))
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
