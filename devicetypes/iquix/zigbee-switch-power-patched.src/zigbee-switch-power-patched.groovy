@@ -12,7 +12,7 @@
  *
  */
 metadata {
-	definition (name: "ZigBee Switch Power (Patched)", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.switch") { 
+	definition (name: "ZigBee Switch Power (Patched)", namespace: "iquix", author: "Smartthings/iquix", ocfDeviceType: "oic.d.switch") { 
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
@@ -22,10 +22,6 @@ metadata {
 		capability "Health Check"
 		capability "Light"
 
-		// Generic
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0B04"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702"
-		
 		// Heiman
 		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "Heiman SmartPlug 16A"
 		
@@ -33,31 +29,6 @@ metadata {
 		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", outClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", manufacturer: "DAWON_DNS", model: "PM-B530-ZB", deviceJoinName: "DAWON SmartPlug 16A" 
 		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0004, 0003, 0006, 0019, 0702, 0B04", outClusters: "0000, 0004, 0003, 0006, 0019, 0702, 0B04", manufacturer: "DAWON_DNS", model: "PM-B430-ZB", deviceJoinName: "DAWON SmartPlug 10A" 
 		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", outClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", manufacturer: "DAWON_DNS", model: "PM-C140-ZB", deviceJoinName: "DAWON Wall Plug" 
-
-		// Aurora
-		fingerprint profileId: "0104", inClusters: "0000, 0702, 0003, 0009, 0B04, 0006, 0004, 0005, 0002", outClusters: "0000, 0019, 000A, 0003, 0406", manufacturer: "Develco Products A/S", model: "Smart16ARelay51AU", deviceJoinName: "Aurora Smart Inline Relay"
-		fingerprint profileId: "0104", inClusters: "0000, 0702, 0003, 0009, 0B04, 0006, 0004, 0005, 0002", outClusters: "0000, 0019, 000A, 0003, 0406", manufacturer: "Aurora", model: "Smart16ARelay51AU", deviceJoinName: "Aurora Smart Inline Relay"
-
-		// GE/Jasco
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702, 0B05", outClusters: "0003, 000A, 0019", manufacturer: "Jasco Products", model: "45853", deviceJoinName: "GE ZigBee Plug-In Switch", ocfDeviceType: "oic.d.smartplug"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702, 0B05", outClusters: "000A, 0019", manufacturer: "Jasco Products", model: "45856", deviceJoinName: "GE ZigBee In-Wall Switch"
-
-		// INGENIUM
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0B04", outClusters: "0000, 0004", manufacturer: "MEGAMAN", model: "SH-PSUKC44B-E", deviceJoinName: "INGENIUM ZB Smart Power Adaptor", ocfDeviceType: "oic.d.smartplug"
-
-		// Ozom
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702", outClusters: "0000", manufacturer: "ClimaxTechnology", model: "PSM_00.00.00.35TC", deviceJoinName: "Ozom Smart Plug", ocfDeviceType: "oic.d.smartplug"
-
-		// Philio
-		fingerprint manufacturer: " ", model: "PAN18-v1.0.7", deviceJoinName: "Philio Smart Plug", ocfDeviceType: "oic.d.smartplug" //profileId: "0104", inClusters: "0000, 0003, 0006, 0702", outClusters: "0003, 0019",
-
-		// Salus
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006, 0702", manufacturer: "SALUS", model: "SX885ZB", deviceJoinName: "Salus miniSmartplug"
-		
-		//AduroSmart
-		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000, 0003, 0004, 0005, 0006, 0B04, 1000, 0702", outClusters: "0019", manufacturer: "AduroSmart Eria", model: "AD-SmartPlug3001", deviceJoinName: "Eria Zigbee Smart Plug"
-		fingerprint profileId: "0104", deviceId: "010A", inClusters: "0000, 0003, 0004, 0005, 0006, 1000", outClusters: "0019", manufacturer: "AduroSmart Eria", model: "BPU3", deviceJoinName: "Eria Zigbee On/Off Plug"
-		fingerprint profileId: "0104", deviceId: "0101", inClusters: "0000, 0003, 0004, 0005, 0006, 0008, 1000", outClusters: "0019", manufacturer: "AduroSmart Eria", model: "BDP3001", deviceJoinName: "Eria Zigbee Dimmable Plug"
 	}
 
 	tiles(scale: 2) {

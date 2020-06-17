@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.4.2)
+ *  Tuya Window Shade (v.0.2.4.3)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -180,7 +180,6 @@ def setLevel(data, rate = null) {
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == data) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
-		return
 	}
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
@@ -193,18 +192,12 @@ def presetPosition() {
 def configure() {
 	log.info "configure()"
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-	forceLevel50()
+	setLevel(50)
 }
 
 def updated() {
 	log.info "updated()"
-	forceLevel50()
-}
-
-private forceLevel50() {
-	log.info "forceLevel50()"
-	sendEvent(name: "level", value: 50, displayed: false)
-	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(50), 8))
+	setLevel(50)
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
