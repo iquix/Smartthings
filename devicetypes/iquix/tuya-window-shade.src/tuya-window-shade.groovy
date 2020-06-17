@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.4.0)
+ *  Tuya Window Shade (v.0.2.4.1)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -198,6 +198,7 @@ def configure() {
 
 def updated() {
 	log.info "updated()"
+    setLevel(50)
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
