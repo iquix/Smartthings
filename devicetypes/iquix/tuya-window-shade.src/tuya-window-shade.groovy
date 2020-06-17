@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.4.3)
+ *  Tuya Window Shade (v.0.2.4.4)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -155,7 +155,6 @@ def close() {
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == 0) {
 		sendEvent(name: "windowShade", value: "closed", displayed: true)
-		return
 	}
 	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "02" : "00")
 }
@@ -165,13 +164,13 @@ def open() {
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == 100) {
 		sendEvent(name: "windowShade", value: "open", displayed: true)
-		return
 	}
 	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "00" : "02")
 }
 
 def pause() {
 	log.info "pause()"
+	sendEvent(name: "windowShade", value: device.currentValue("windowShade"), displayed: false)
 	sendTuyaCommand("01", DP_TYPE_ENUM, "01")
 }
 
