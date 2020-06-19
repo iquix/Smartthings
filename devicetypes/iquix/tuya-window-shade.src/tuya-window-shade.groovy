@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.2.4.4)
+ *  Tuya Window Shade (v.0.3.0.0)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -32,7 +32,7 @@ metadata {
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
 		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor. [WARNING!! Please set curtain position to 50% before changing this preference option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
-		input "fixpercent", "enum", title: "Fix percent", description: "You need to fix percent unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Fix percent", "Leave it"], defaultValue: "Leave it", required: false, displayDuringSetup: false
+		input "fixpercent", "enum", title: "Fix percent", description: "Set 'Fix percent' option unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Default", "Fix percent"], defaultValue: "Leave it", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -96,10 +96,10 @@ def parse(String description) {
 						}
 						break
 					case 0x01: // 0x01: Control -- Opening/closing/stopping (triggered from Zigbee)
-						if (fncmd[0] == ((REVERSE_MODE) ? "00" : "02")) {
+						if (fncmd[0] == "02") {
 							log.debug "opening"
 							levelEventMoving(100)
-						} else if (fncmd[0] == ((REVERSE_MODE) ? "02" : "00")) {
+						} else if (fncmd[0] == "00") {
 							log.debug "closing"
 							levelEventMoving(0)
 						}
@@ -156,7 +156,7 @@ def close() {
 	if (currentLevel == 0) {
 		sendEvent(name: "windowShade", value: "closed", displayed: true)
 	}
-	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "02" : "00")
+	sendTuyaCommand("01", DP_TYPE_ENUM, "00")
 }
 
 def open() {
@@ -165,7 +165,7 @@ def open() {
 	if (currentLevel == 100) {
 		sendEvent(name: "windowShade", value: "open", displayed: true)
 	}
-	sendTuyaCommand("01", DP_TYPE_ENUM, (REVERSE_MODE) ? "00" : "02")
+	sendTuyaCommand("01", DP_TYPE_ENUM, "02")
 }
 
 def pause() {
@@ -191,12 +191,18 @@ def presetPosition() {
 def configure() {
 	log.info "configure()"
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-	setLevel(50)
+    setDirection() + setLevel(50)
 }
 
 def updated() {
 	log.info "updated()"
-	setLevel(50)
+	def cmds = setDirection() + setLevel(50)
+	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }     
+}
+
+private setDirection() {
+	log.info "setDirection()"
+	sendTuyaCommand("05", DP_TYPE_ENUM, (reverse == "Reverse") ? "01" : "00")
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
@@ -208,11 +214,6 @@ private getPACKET_ID() {
 	return zigbee.convertToHexString(state.packetID)
 }
 
-private getREVERSE_MODE() { 
-	return (reverse == "Reverse")
-}
-
 private levelVal(n) {
-	return (int)((REVERSE_MODE ^ (fixpercent != "Fix percent")) ? n : 100-n)
-	//return (int)(REVERSE_MODE ? 100-n : n)
+	return (int)((fixpercent == "Fix percent") ? 100-n : n)
 }
