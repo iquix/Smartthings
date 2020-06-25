@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.3.0.0)
+ *  Tuya Window Shade (v.0.3.0.1)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -24,9 +24,13 @@ metadata {
 
 		command "pause"
 
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", model: "TS0601", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", model: "owvfni3", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", model: "mcdj3aq", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Shade"
 	}
 
 	preferences {
