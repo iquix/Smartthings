@@ -15,7 +15,7 @@
 import groovy.json.JsonOutput
 
 metadata {
-	definition(name: "Tuya Window Shade (with Switch capability - Only for testing purpose)", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.blind") {
+	definition(name: "Tuya Window Shade (with Switch capability - Only for testing purpose)", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.blind", vid: "generic-shade") {
 		capability "Actuator"
 		capability "Configuration"
 		capability "Window Shade"
