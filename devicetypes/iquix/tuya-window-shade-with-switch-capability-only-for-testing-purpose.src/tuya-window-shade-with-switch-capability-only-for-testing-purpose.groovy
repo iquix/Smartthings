@@ -134,13 +134,13 @@ private levelEventMoving(currentLevel) {
 private levelEventArrived(level) {
 	if (level == 0) {
 		sendEvent(name: "windowShade", value: "closed", displayed: true)
-		sendEvent(name: "switch", value: "off", displayed: true)
+		sendEvent(name: "switch", value: "off", displayed: false)
 	} else if (level == 100) {
 		sendEvent(name: "windowShade", value: "open", displayed: true)
-		sendEvent(name: "switch", value: "on", displayed: true)
+		sendEvent(name: "switch", value: "on", displayed: false)
 	} else if (level > 0 && level < 100) {
 		sendEvent(name: "windowShade", value: "partially open", displayed: true)
-		sendEvent(name: "switch", value: "on", displayed: true)
+		sendEvent(name: "switch", value: "on", displayed: false)
 	} else {
 		log.debug "Position value error : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
 		sendEvent(name: "windowShade", value: "unknown", displayed: true)
