@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.6
+ *  Hue Dimmer Switch ver 0.1.7
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -32,6 +32,9 @@ metadata {
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch"
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch"
 	}
+	preferences {
+		input name: "holdTimingValue", type: "enum", title: "Hold event firing timing", options:["0": "When Hold starts", "1": "When Hold ends"], defaultValue: "0"
+	}
 	tiles {
 		multiAttributeTile(name: "button", type: "generic", width: 6, height: 4, canChangeIcon: true) {
 			tileAttribute("device.lastButtonState", key: "PRIMARY_CONTROL") {
@@ -55,6 +58,7 @@ metadata {
 		}
 		main (["button"])
 		details(["button", "battery", "refresh", "lastcheckin"])
+		//details(["button", "battery", "lastcheckin"])
 	}
 }
 
@@ -74,28 +78,26 @@ private getButtonName(buttonNum) {
 
 def parse(String description) {
 	def result = []
-	   	
-	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
+	
+   	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
 		result = parseMessage(description)
-	} else if (description?.startsWith('enroll request')) {
+	}
+	/*else if (description?.startsWith('enroll request')) {
 		def cmds = zigbee.enrollResponse()
 		result = cmds?.collect { new physicalgraph.device.HubAction(it) }
 	}
-	
-	sendEvent(name: "lastCheckin", value: (new Date().format("MM-dd HH:mm:ss ", location.timeZone)), displayed: false)
 	if (now() - state.battRefresh > 12 * 60 * 60 * 1000) { // send battery query command in at least 12hrs time gap
 		state.battRefresh = now()
 		def cmds = refresh()
 		cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) } 
-	}
-	
+	}*/
+	sendEvent(name: "lastCheckin", value: (new Date().format("MM-dd HH:mm:ss ", location.timeZone)), displayed: false)	
 	return result
 }
 
 
 private parseMessage(String description) {
 	def descMap = zigbee.parseDescriptionAsMap(description)
-	log.debug descMap
 
 	switch(descMap.clusterInt) {
 		case zigbee.POWER_CONFIGURATION_CLUSTER:
@@ -133,30 +135,34 @@ private getButtonResult(rawValue) {
 	def button = zigbee.convertHexToInt(rawValue[0])
 	def buttonState = rawValue[4]
 	def buttonHoldTime = rawValue[6]
-
+	log.debug "Button data : button=${button}  buttonState=${buttonState}  buttonHoldTime=${buttonHoldTime}"
+	
 	if ( buttonState == "00" ) {  // button pressed
-		//buttonStateTxt = "pressed"
 		return [:]
 	} else if ( buttonState == "02" ) {  // button released after push
 		buttonStateTxt = "pushed"
 	} else if ( buttonState == "03" ) {  // button released after hold
-		buttonStateTxt = "released"
+		buttonStateTxt = (HOLDTIMING)? "held" : "released"
 	} else if ( buttonHoldTime == "08" ) {  // The button is being held
-		buttonStateTxt = "held"
+		if (HOLDTIMING) {
+			return [:]
+		} else {
+			buttonStateTxt = "held"
+		}
 	} else {
 		return [:]
 	}
 	
-	def descriptionText = "${getButtonLabel(button)} button was $buttonStateTxt"
-
+	def descriptionText = "${getButtonLabel(button)} button was ${buttonStateTxt}"
+	log.debug descriptionText
    	result << createEvent(name: "lastButtonName", value: getButtonLabel(button), displayed: false)
 	result << createEvent(name: "lastButtonState", value: buttonStateTxt, displayed: false)
 	
 	if (buttonStateTxt == "pushed" || buttonStateTxt == "held") {
 		result << createEvent(name: "button", value: buttonStateTxt, data: [buttonNumber: button], descriptionText: descriptionText, isStateChange: true, displayed: false)
 		sendButtonEvent(button, buttonStateTxt)
-		if (buttonStateTxt == "pushed") {
-			runIn(1, "setReleased")
+		if (buttonStateTxt == "pushed" || HOLDTIMING) {
+			runIn(1, "setReleased", [overwrite:true])
 		}
 	}
 	return result
@@ -166,7 +172,7 @@ private getButtonResult(rawValue) {
 private sendButtonEvent(buttonNum, buttonState) {
 	def child = childDevices?.find { channelNumber(it.deviceNetworkId) == buttonNum }
 	if (child) {
-		def descriptionText = "$child.displayName button is $buttonState"
+		def descriptionText = "${child.displayName} button is ${buttonState}"
 		log.debug child.deviceNetworkId + " : " + descriptionText
 		child.sendEvent(name: "button", value: buttonState, data: [buttonNumber: 1], descriptionText: descriptionText, isStateChange: true, displayed: true)
 	} else {
@@ -176,21 +182,22 @@ private sendButtonEvent(buttonNum, buttonState) {
 
 
 private setReleased() {
+	log.debug "setReleased()"
 	sendEvent(name: "lastButtonState", value: "released", displayed: false)
 }
 
 
 def refresh() {
-	def refreshCmds = zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint:0x02])
+	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint:0x02]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint:0x02])
+	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint:0x02])
 	log.debug "refresh() returns " + refreshCmds
 	return refreshCmds
 }
 
 
 def configure() {
-	def configCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint:0x02]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 30, 21600, 0x01, [destEndpoint:0x02])
-	log.debug "configure() returns "+ configCmds+ " + refresh()"
-	return configCmds + refresh()
+	log.debug "configure() returns refresh()"
+	return refresh()
 }
 
 
@@ -203,8 +210,11 @@ def updated() {
 		}
 		state.oldLabel = device.label
 	}
-	def cmds = configure()
-	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) } 
+	for (child in childDevices) {
+		if (!child.deviceNetworkId.startsWith(device.deviceNetworkId)) { //parent DNI has changed after rejoin
+			child.setDeviceNetworkId("${device.deviceNetworkId}:${channelNumber(child.deviceNetworkId)}")
+		}
+	}	
 }
 
 
@@ -220,7 +230,7 @@ def installed() {
 	// These devices don't report regularly so they should only go OFFLINE when Hub is OFFLINE
 	sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
 	sendEvent(name: "lastButtonState", value: "released", displayed: false)
-	state.battRefresh = now()
+	//state.battRefresh = now()
 }
 
 
@@ -244,4 +254,8 @@ private void createChildButtonDevices(numberOfButtons) {
 
 private channelNumber(String dni) {
 	dni.split(":")[-1] as Integer
+}
+
+private getHOLDTIMING() {
+	return (holdTimingValue=="1")
 }
