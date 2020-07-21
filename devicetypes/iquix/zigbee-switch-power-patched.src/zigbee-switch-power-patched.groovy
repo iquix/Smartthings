@@ -11,8 +11,9 @@
  *	for the specific language governing permissions and limitations under the License.
  *
  */
+
 metadata {
-	definition (name: "ZigBee Switch Power (Patched)", namespace: "iquix", author: "Smartthings/iquix", ocfDeviceType: "oic.d.switch") { 
+	definition (name: "ZigBee Switch Power (Patched)", namespace: "iquix", author: "SmartThings/iquix", ocfDeviceType: "oic.d.switch") {
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
@@ -23,12 +24,13 @@ metadata {
 		capability "Light"
 
 		// Heiman
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "Heiman SmartPlug 16A"
-		
-		// Dawon
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", outClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", manufacturer: "DAWON_DNS", model: "PM-B530-ZB", deviceJoinName: "DAWON SmartPlug 16A" 
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0004, 0003, 0006, 0019, 0702, 0B04", outClusters: "0000, 0004, 0003, 0006, 0019, 0702, 0B04", manufacturer: "DAWON_DNS", model: "PM-B430-ZB", deviceJoinName: "DAWON SmartPlug 10A" 
-		fingerprint endpointId: "0x01", profileId: "0104", deviceId: "0051", inClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", outClusters: "0000, 0002, 0003, 0004, 0006, 0019, 0702, 0B04, 0008, 0009", manufacturer: "DAWON_DNS", model: "PM-C140-ZB", deviceJoinName: "DAWON Wall Plug" 
+		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "Heiman Outlet", ocfDeviceType: "oic.d.smartplug" // Heiman SmartPlug 16A
+
+		// DAWON
+		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0004 0003 0006 0019 0702 0B04", outClusters: "0000 0004 0003 0006 0019 0702 0B04", manufacturer: "DAWON_DNS", model: "PM-B430-ZB", deviceJoinName: "Dawon Outlet", ocfDeviceType: "oic.d.smartplug" // DAWON DNS Smart Plug PM-B430-ZB (10A)
+		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0002 0003 0004 0006 0019 0702 0B04 0008 0009", outClusters: "0000 0002 0003 0004 0006 0019 0702 0B04 0008 0009", manufacturer: "DAWON_DNS", model: "PM-B530-ZB", deviceJoinName: "Dawon Outlet", ocfDeviceType: "oic.d.smartplug" // DAWON DNS Smart Plug PM-B530-ZB (16A)
+		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0002 0003 0004 0006 0019 0702 0B04 0008 0009", outClusters: "0000 0002 0003 0004 0006 0019 0702 0B04 0008 0009", manufacturer: "DAWON_DNS", model: "PM-C140-ZB", deviceJoinName: "Dawon Outlet", ocfDeviceType: "oic.d.smartplug" // DAWON DNS In-Wall Outlet PM-C140-ZB
+		fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0002 0003 0006 0702 0B04", outClusters: "0003 0019", manufacturer: "DAWON_DNS", model: "PM-B540-ZB", deviceJoinName: "Dawon Outlet", ocfDeviceType: "oic.d.smartplug" // DAWON DNS Smart Plug PM-B540-ZB (16A)
 	}
 
 	tiles(scale: 2) {
@@ -89,7 +91,12 @@ def refresh() {
 		// This needs to be the first binding table entry because the device will automatically write this entry each time it restarts
 		cmds += ["zdo bind 0x${device.deviceNetworkId} 2 1 0x0006 {${device.zigbeeId}} {${device.zigbeeId}}", "delay 2000"]
 	}
-	cmds + zigbee.onOffConfig(0, reportIntervalMinutes * 60) + zigbee.simpleMeteringPowerConfig(1, 600, 0x01) + zigbee.electricMeasurementPowerConfig(1, 600, 0x0001)
+	if (device.getDataValue("divisor") == "1") {
+		cmds += zigbee.onOffConfig(0, reportIntervalMinutes * 60) + zigbee.simpleMeteringPowerConfig(1, 600, 0x01) + zigbee.electricMeasurementPowerConfig(1, 600, 0x0001)
+	} else {
+		cmds += zigbee.onOffConfig(0, reportIntervalMinutes * 60) + zigbee.simpleMeteringPowerConfig() + zigbee.electricMeasurementPowerConfig()
+	}
+	return cmds
 }
 
 def configure() {
@@ -97,7 +104,7 @@ def configure() {
 	if ((device.getDataValue("manufacturer") == "Develco Products A/S") || (device.getDataValue("manufacturer") == "Aurora"))  {
 		device.updateDataValue("divisor", "1")
 	}
-	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS"))  {
+	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS")) {
 		device.updateDataValue("divisor", "1")
 	}
 	return configureHealthCheck()
@@ -112,7 +119,7 @@ def configureHealthCheck() {
 def updated() {
 	log.debug "in updated()"
 	// updated() doesn't have it's return value processed as hub commands, so we have to send them explicitly
-	def cmds = configure()
+	def cmds = configureHealthCheck()
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
 }
 
