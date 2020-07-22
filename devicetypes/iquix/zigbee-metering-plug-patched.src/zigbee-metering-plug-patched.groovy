@@ -24,7 +24,8 @@ metadata {
         capability "Sensor"
         capability "Configuration"
 
-        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", manufacturer: "_TZ3000_vtscrpmw", model: "TS0121",  deviceJoinName: "Outlet" //Tuya Smart Plug
+        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", manufacturer: "_TZ3000_vtscrpmw", model: "TS0121",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug
+        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", manufacturer: "_TZ3000_3ooaz3ng", model: "TS0121",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug        
     }
 
     tiles(scale: 2){
