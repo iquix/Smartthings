@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.3.0.1)
+ *  Tuya Window Shade (v.0.3.1.0)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -24,13 +24,13 @@ metadata {
 
 		command "pause"
 
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Shade"
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Shade"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment"
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment"
 	}
 
 	preferences {
@@ -91,10 +91,10 @@ def parse(String description) {
 				log.debug "dp=" + dp + "  fncmd=" + fncmd
 				switch (dp) {
 					case 0x07: // 0x07: Work state -- Started moving (triggered by transmitter or pulling on curtain)
-						if (device.currentValue("level")==0) {
+						if (device.currentValue("level") == 0) {
 							log.debug "moving from position 0 : must be opening"
 							levelEventMoving(100)
-						} else if (device.currentValue("level")==100) {
+						} else if (device.currentValue("level") == 100) {
 							log.debug "moving from position 100 : must be closing"
 							levelEventMoving(0)
 						}
@@ -139,6 +139,7 @@ private levelEventMoving(currentLevel) {
 }
 
 private levelEventArrived(level) {
+	state.levelRestoreValue = null
 	if (level == 0) {
 		sendEvent(name: "windowShade", value: "closed", displayed: true)
 	} else if (level == 100) {
@@ -146,7 +147,7 @@ private levelEventArrived(level) {
 	} else if (level > 0 && level < 100) {
 		sendEvent(name: "windowShade", value: "partially open", displayed: true)
 	} else {
-		log.debug "Position value error : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
+		log.debug "Position value error (${level}) : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
 		sendEvent(name: "windowShade", value: "unknown", displayed: true)
 		sendEvent(name: "level", value: 50, displayed: true)
 		return
@@ -184,6 +185,8 @@ def setLevel(data, rate = null) {
 	if (currentLevel == data) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
 	}
+	state.levelRestoreValue = currentLevel
+	runIn(10, "levelRestore", [overwrite:true])
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
@@ -192,16 +195,27 @@ def presetPosition() {
 	setLevel(preset ?: 50)
 }
 
-def configure() {
-	log.info "configure()"
+def installed() {
+	log.info "installed()"
+	state.preferences = null
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-    setDirection() + setLevel(50)
 }
 
 def updated() {
 	log.info "updated()"
-	def cmds = setDirection() + setLevel(50)
-	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }     
+	def cmds = setDirection()
+	if (state.preferences != "|${reverse}|${fixpercent}|")  {
+		state.preferences = "|${reverse}|${fixpercent}|"
+		cmds += setLevel(50)
+	}
+	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	 
+}
+
+def levelRestore() {
+	if (state.levelRestoreValue != null) {
+		log.debug "Position data not received until timeout. Restoring previous position: ${state.levelRestoreValue}"
+		levelEventArrived(state.levelRestoreValue)
+	}
 }
 
 private setDirection() {
