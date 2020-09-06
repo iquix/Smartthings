@@ -136,8 +136,9 @@ def setAirConditionerMode(mode) {
 def setFanMode(mode) {
 	if (mode!="low" && mode!="medium" && mode!="high" && mode!="auto") {
 		sendEvent(name: "fanMode", value: "auto", displayed: true)
+	} else {
+		sendEvent(name: "fanMode", value: mode, displayed: true)
 	}
-	sendEvent(name: "fanMode", value: mode, displayed: true)
 	if (state.switch=="on") {
 		sendTasmota('IRhvac {"Vendor":"'+VENDOR+'", "Power":"On","Mode":"'+device.currentValue("airConditionerMode")+'","FanSpeed":"'+FANMODE+'","Temp":"'+device.currentValue("coolingSetpoint")+'"}')
 	}
