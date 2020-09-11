@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.3.1.0)
+ *  Tuya Window Shade (v.0.3.1.1)
  *	Copyright 2020 iquix
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -42,11 +42,11 @@ metadata {
 	tiles(scale: 2) {
 		multiAttributeTile(name:"windowShade", type: "generic", width: 6, height: 4) {
 			tileAttribute("device.windowShade", key: "PRIMARY_CONTROL") {
-				attributeState "open", label: 'Open', action: "close", icon: "http://www.ezex.co.kr/img/st/window_open.png", backgroundColor: "#00A0DC", nextState: "closing"
-				attributeState "closed", label: 'Closed', action: "open", icon: "http://www.ezex.co.kr/img/st/window_close.png", backgroundColor: "#ffffff", nextState: "opening"
-				attributeState "partially open", label: 'Partially open', action: "close", icon: "http://www.ezex.co.kr/img/st/window_open.png", backgroundColor: "#d45614", nextState: "closing"
-				attributeState "opening", label: 'Opening', action: "pause", icon: "http://www.ezex.co.kr/img/st/window_open.png", backgroundColor: "#00A0DC", nextState: "partially open"
-				attributeState "closing", label: 'Closing', action: "pause", icon: "http://www.ezex.co.kr/img/st/window_close.png", backgroundColor: "#ffffff", nextState: "partially open"
+				attributeState "open", label: 'Open', action: "close", icon: "https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnqa4dxui0ha/b/ST/o/window_open.png", backgroundColor: "#00A0DC", nextState: "closing"
+				attributeState "closed", label: 'Closed', action: "open", icon: "https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnqa4dxui0ha/b/ST/o/window_close.png", backgroundColor: "#ffffff", nextState: "opening"
+				attributeState "partially open", label: 'Partially open', action: "close", icon: "https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnqa4dxui0ha/b/ST/o/window_open.png", backgroundColor: "#d45614", nextState: "closing"
+				attributeState "opening", label: 'Opening', action: "pause", icon: "https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnqa4dxui0ha/b/ST/o/window_open.png", backgroundColor: "#00A0DC", nextState: "partially open"
+				attributeState "closing", label: 'Closing', action: "pause", icon: "https://objectstorage.ap-seoul-1.oraclecloud.com/n/cnqa4dxui0ha/b/ST/o/window_close.png", backgroundColor: "#ffffff", nextState: "partially open"
 			}
 		}
 		standardTile("contPause", "device.switch", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
