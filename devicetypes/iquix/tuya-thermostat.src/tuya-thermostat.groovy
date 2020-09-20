@@ -1,5 +1,5 @@
 /**
- *  Tuya Thermostat (v.0.1.0.0)
+ *  Tuya Thermostat (v.0.1.0.1)
  *	Copyright 2020 Jaewon Park
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -17,7 +17,7 @@ import groovy.json.JsonOutput
 metadata {
 	definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix", vid: "generic-radiator-thermostat") {
 		capability "Thermostat"
-		capability "Temperature Measurement"        
+		capability "Temperature Measurement"		
 		capability "Refresh"
 		capability "Actuator"
 		capability "Sensor"
@@ -69,32 +69,31 @@ private getDP_TYPE_ENUM() { "04" }
 def parse(String description) {
 	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
 		Map descMap = zigbee.parseDescriptionAsMap(description)
-        if ((descMap?.clusterInt==CLUSTER_TUYA) && (descMap?.command == "24" || descMap?.command == "0B")) {
-        	log.debug ((descMap?.command == "24")? "status update from device" : "zigbee command received") + "  " + descMap
+		if ((descMap?.clusterInt==CLUSTER_TUYA) && (descMap?.command == "24" || descMap?.command == "0B")) {
+			log.debug ((descMap?.command == "24")? "status update from device" : "zigbee command received from the ST hub") //+ "  " + descMap
 			state.old_dp = ""
 			state.old_fncmd = ""
-        } else if ((descMap?.clusterInt==CLUSTER_TUYA) && (descMap?.command == "01" || descMap?.command == "02")) {
+		} else if ((descMap?.clusterInt==CLUSTER_TUYA) && (descMap?.command == "01" || descMap?.command == "02")) {
 			def dp = zigbee.convertHexToInt(descMap?.data[2])
 			def fncmd = ""
 			for (def i = 0; i < zigbee.convertHexToInt(descMap?.data[4]+descMap?.data[5]); i++) {
 				fncmd += descMap?.data[i + 6]
 			}
 			if (dp == state.old_dp && fncmd == state.old_fncmd) {
-            	//log.debug "    (duplicate) dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command
+				//log.debug "	(duplicate) dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command
 				return
-			} else {
-            	log.debug "dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command + "  descMap =" + descMap
-            }
+			}
+			log.debug "dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command + "  descMap =" + descMap
 			state.old_dp = dp
 			state.old_fncmd = fncmd
 
 			switch (dp) {
 				case 0x01: // 0x01: Heat / Off
-                	def mode = (fncmd == "00") ? "off" : "heat"
+					def mode = (fncmd == "00") ? "off" : "heat"
 					log.debug "mode: " + mode
 					sendEvent(name: "thermostatMode", value: mode, displayed: true)
 					if (mode == state.mode) {
-                    	state.mode = ""
+						state.mode = ""
 					}
 					break
 				case 0x10: // 0x10: Target Temperature
@@ -103,8 +102,8 @@ def parse(String description) {
 					sendEvent(name: "heatingSetpoint", value: setpointValue as int, unit: "C", displayed: true)
 					sendEvent(name: "coolingSetpoint", value: setpointValue as int, unit: "C", displayed: false)
 					if (setpointValue == state.setpoint)  {
-                    	state.setpoint = 0
-                    }
+						state.setpoint = 0
+					}
 					break
 				case 0x18: // 0x18 : Current Temperature
 					def currentTemperatureValue = zigbee.convertHexToInt(fncmd)/10
@@ -113,13 +112,13 @@ def parse(String description) {
 					break
 				case 0x03: // 0x03 : Scheduled/Manual Mode
 					if (fncmd == "00") {
-                    	log.debug "scheduled mode"
-                        if (forceManual == "1") {
-                        	setManualMode()
-                        }
+						log.debug "scheduled mode"
+						if (forceManual == "1") {
+							setManualMode()
+						}
 					} else {
-                    	log.debug "manual mode"
-                    }
+						log.debug "manual mode"
+					}
 					break
 			}
 		} else {
@@ -130,8 +129,8 @@ def parse(String description) {
 
 def setThermostatMode(mode){
 	log.debug "setThermostatMode("+mode+")"
-    state.mode = mode
-    runIn(4, modeReceiveCheck, [overwrite:true])
+	state.mode = mode
+	runIn(4, modeReceiveCheck, [overwrite:true])
 	sendTuyaCommand("01", DP_TYPE_BOOL, (mode=="heat")?"01":"00")
 }
 
@@ -140,8 +139,8 @@ def setHeatingSetpoint(temperature){
 	def settemp = temperature as int 
 	settemp += (settemp != temperature && temperature > device.currentValue("heatingSetpoint")) ? 1 : 0
 	log.debug "change setpoint to "+settemp
-    state.setpoint = settemp
-    runIn(4, setpointReceiveCheck, [overwrite:true])
+	state.setpoint = settemp
+	runIn(4, setpointReceiveCheck, [overwrite:true])
 	sendTuyaCommand("10", DP_TYPE_VALUE, zigbee.convertToHexString(settemp as int, 8))
 }
 
@@ -174,9 +173,9 @@ def installed() {
 	sendEvent(name: "heatingSetpoint", value: 0, unit: "C", displayed: false)
 	sendEvent(name: "coolingSetpoint", value: 0, unit: "C", displayed: false)
 	sendEvent(name: "temperature", value: 0, unit: "C", displayed: false)
-    state.mode = ""
-    state.setpoint = 0
-    
+	state.mode = ""
+	state.setpoint = 0
+	
 }
 
 def updated() {
@@ -185,18 +184,18 @@ def updated() {
 
 def modeReceiveCheck() {
 	log.debug "modeReceiveCheck()"
-    if (state.mode != "") {
-    	def cmds = setThermostatMode(state.mode)
-    	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
-    }
+	if (state.mode != "") {
+		def cmds = setThermostatMode(state.mode)
+		cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
+	}
 }
 
 def setpointReceiveCheck() {
 	log.debug "setpointReceiveCheck()"
-    if (state.setpoint != 0 ) {
-    	def cmds = setHeatingSetpoint(state.setpoint)
-        cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
-    }
+	if (state.setpoint != 0 ) {
+		def cmds = setHeatingSetpoint(state.setpoint)
+		cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
+	}
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
