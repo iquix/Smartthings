@@ -1,6 +1,6 @@
 /**
- *  Tuya Window Shade (v.0.3.1.1)
- *	Copyright 2020 iquix
+ *  Tuya Window Shade (v.0.3.2.0)
+ *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *	in compliance with the License. You may obtain a copy of the License at:
@@ -35,8 +35,8 @@ metadata {
 
 	preferences {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
-		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor. [WARNING!! Please set curtain position to 50% before changing this preference option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
-		input "fixpercent", "enum", title: "Fix percent", description: "Set 'Fix percent' option unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this preference option.]", options: ["Default", "Fix percent"], defaultValue: "Leave it", required: false, displayDuringSetup: false
+		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor by open/close app commands. [WARNING!! Please set curtain position to 50% before changing this option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
+		input "fixpercent", "enum", title: "Fix percent", description: "Set 'Fix percent' option unless open is 100% and close is 0%. [WARNING: Please set curtain position to 50% before changing this option.]", options: ["Default", "Fix percent"], defaultValue: "Default", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -135,6 +135,8 @@ private levelEventMoving(currentLevel) {
 		} else if (lastLevel > currentLevel) {
 			sendEvent([name:"windowShade", value: "closing", displayed: true])
 		}
+		state.levelRestoreValue = lastLevel
+		runIn(90, "levelRestore", [overwrite:true])
 	}
 }
 
@@ -180,13 +182,12 @@ def pause() {
 }
 
 def setLevel(data, rate = null) {
-	log.info "setLevel("+data+")"
+	log.info "setLevel(${data})"
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == data) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
 	}
-	state.levelRestoreValue = currentLevel
-	runIn(10, "levelRestore", [overwrite:true])
+	runIn(10, "levelSet", [overwrite:true])
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
@@ -211,9 +212,16 @@ def updated() {
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	 
 }
 
+def levelSet() {
+	if (state.levelRestoreValue != null) {
+		log.debug "Position data not received yet. Setting position to previous position (${state.levelRestoreValue}) to prevent app error."
+		sendEvent(name: "level", value: state.levelRestoreValue, displayed: false)
+	}
+}
+
 def levelRestore() {
 	if (state.levelRestoreValue != null) {
-		log.debug "Position data not received until timeout. Restoring previous position: ${state.levelRestoreValue}"
+		log.debug "Position data finally not received until timeout. Restoring previous state and position(${state.levelRestoreValue})."
 		levelEventArrived(state.levelRestoreValue)
 	}
 }
@@ -224,12 +232,12 @@ private setDirection() {
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
-	zigbee.command(CLUSTER_TUYA, SETDATA, "00" + PACKET_ID + dp + dp_type + zigbee.convertToHexString(fncmd.length()/2, 4) + fncmd )
+	zigbee.command(CLUSTER_TUYA, SETDATA, PACKET_ID + dp + dp_type + zigbee.convertToHexString(fncmd.length()/2, 4) + fncmd )
 }
 
 private getPACKET_ID() {
-	state.packetID = ((state.packetID ?: 0) + 1 ) % 256
-	return zigbee.convertToHexString(state.packetID)
+	state.packetID = ((state.packetID ?: 0) + 1 ) % 65536
+	return zigbee.convertToHexString(state.packetID, 4)
 }
 
 private levelVal(n) {
