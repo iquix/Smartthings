@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.0.0) 
+ *  Tuya Window Shade (v.0.4.1.0) 
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -37,7 +37,7 @@ metadata {
 		input "preset", "number", title: "Preset position", description: "Set the window shade preset position", defaultValue: 50, range: "0..100", required: false, displayDuringSetup: false
 		input "reverse", "enum", title: "Direction", description: "Set direction of curtain motor by open/close app commands. For example, if you send 'open' command from app, but the curtain motor is closing, then set this option to 'Reverse'. [WARNING!! Please set position to 50% before changing this option.]", options: ["Forward", "Reverse"], defaultValue: "Forward", required: false, displayDuringSetup: false
 		input "fixpercent", "enum", title: "Fix percent", description: "Set 'Fix percent' option unless open is 100% and close is 0%. 'Open' should be 100% in level and 'Close' should be 0% in level. If it is reversed, then set this option to 'Fix percent'. [WARNING: Please set position to 50% before changing this option.]", options: ["Default", "Fix percent"], defaultValue: "Default", required: false, displayDuringSetup: false
-		input "fixcommand", "enum", title: "Fix Blind command", description: "[Only For Use in Blinds] Set 'Fix Blind command' option if up/down command from RF remote control differs from open/close app command. If you are setting up blinds, please set this option FIRST before setting other options. [WARNING: Please set position to 50% before changing this option.]", options: ["Default", "Fix command"], defaultValue: "Default", required: false, displayDuringSetup: false
+		//input "fixcommand", "enum", title: "Fix command", description: "[Experimental] Set 'Fix command' option if up/down command from RF remote control differs from open/close app command. If you are setting up curtain, please set this option FIRST before setting other options. [WARNING: Please set position to 50% before changing this option.]", options: ["Default", "Fix command"], defaultValue: "Default", required: false, displayDuringSetup: false
 	}
 
 	tiles(scale: 2) {
@@ -111,10 +111,10 @@ def parse(String description) {
 						}
 						break
 					case 0x01: // 0x01: Control -- Opening/closing/stopping (triggered from Zigbee)
-						if (cmdVal(fncmd) == 2) {
+						if (cmdVal(fncmd) == 0) {
 							log.debug "opening"
 							levelEventMoving(100)
-						} else if (cmdVal(fncmd) == 0) {
+						} else if (cmdVal(fncmd) == 2) {
 							log.debug "closing"
 							levelEventMoving(0)
 						}
@@ -174,7 +174,7 @@ def close() {
 	if (currentLevel == 0) {
 		sendEvent(name: "windowShade", value: "closed", displayed: true)
 	}
-	sendTuyaCommand("01", DP_TYPE_ENUM, zigbee.convertToHexString(cmdVal(0)))
+	sendTuyaCommand("01", DP_TYPE_ENUM, zigbee.convertToHexString(cmdVal(2)))
 }
 
 def open() {
@@ -183,7 +183,7 @@ def open() {
 	if (currentLevel == 100) {
 		sendEvent(name: "windowShade", value: "open", displayed: true)
 	}
-	sendTuyaCommand("01", DP_TYPE_ENUM, zigbee.convertToHexString(cmdVal(2)))
+	sendTuyaCommand("01", DP_TYPE_ENUM, zigbee.convertToHexString(cmdVal(0)))
 }
 
 def pause() {
@@ -216,7 +216,7 @@ def installed() {
 def updated() {
 	log.info "updated()"
 	def cmds = setDirection()
-	if (state.preferences != "|${reverse}|${fixpercent}|${fixcommand}|")  {
+	if (state.preferences != "|${reverse}|${fixpercent}|${fixcommand}|") {
 		state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
 		cmds += setLevel(50)
 	}
@@ -252,7 +252,7 @@ private getPACKET_ID() {
 }
 
 private levelVal(n) {
-	return (int)((fixpercent == "Fix percent") ? 100-n : n)
+	return (int)(((fixpercent == "Fix percent") ^ isZemiBlind()) ? n : 100 - n)
 }
 
 private cmdVal(c) {
@@ -260,9 +260,13 @@ private cmdVal(c) {
 }
 
 private directionVal(c) {
-	return (fixcommand == "Fix command") ? 1 - c : c
+	return ((fixcommand == "Fix command") ^ isZemiBlind()) ? 1 - c : c
 }
 
 private isZemiCurtain() {
 	return (device.getDataValue("manufacturer").indexOf("owvfni3") >= 0)
+}
+
+private isZemiBlind() {
+	return (device.getDataValue("manufacturer").indexOf("mcdj3aq") >= 0)
 }
