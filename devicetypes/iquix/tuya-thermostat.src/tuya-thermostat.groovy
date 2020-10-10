@@ -22,7 +22,7 @@ metadata {
         capability "Actuator"
         capability "Sensor"
 
-        fingerprint profileId: "0104", inClusters: "0000 0004 0005 00EF", outClusters: "0019 000A", manufacturer: "_TZE200_aoclfnxz", model: "TS0601", deviceJoinName: "Tuya Thermostat"
+        fingerprint profileId: "0104", inClusters: "0000 0004 0005 00EF", outClusters: "0019 000A", manufacturer: "_TZE200_aoclfnxz", model: "TS0601", deviceJoinName: "Tuya Thermostat" // Moes BHT-002-GALZBW, GBLZBW, GCLZBW
     }
 
     preferences {
@@ -90,30 +90,27 @@ def parse(String description) {
             state.old_fncmd = ""
         } else if ((descMap?.clusterInt==CLUSTER_TUYA) && (descMap?.command == "01" || descMap?.command == "02")) {
             def dp = zigbee.convertHexToInt(descMap?.data[2])
-            def fncmd = ""
-            for (def i = 0; i < zigbee.convertHexToInt(descMap?.data[4]+descMap?.data[5]); i++) {
-                fncmd += descMap?.data[i + 6]
-            }
+            def fncmd = zigbee.convertHexToInt(descMap?.data[6..-1].join(''))
             if (dp == state.old_dp && fncmd == state.old_fncmd) {
-                //log.debug "    (duplicate) dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command
+                //log.debug "(duplicate) dp=${dp}  fncmd=${fncmd}"
                 return
             }
-            log.debug "dp=" + dp + "  fncmd=" + fncmd //+ "  clustercmd=" + descMap.command + "  descMap =" + descMap
+            log.debug "dp=${dp} fncmd=${fncmd}"
             state.old_dp = dp
             state.old_fncmd = fncmd
 
             switch (dp) {
                 case 0x01: // 0x01: Heat / Off
-                    def mode = (fncmd == "00") ? "off" : "heat"
-                    log.debug "mode: " + mode
+                    def mode = (fncmd == 0) ? "off" : "heat"
+                    log.debug "mode: ${mode}"
                     sendEvent(name: "thermostatMode", value: mode, displayed: true)
                     if (mode == state.mode) {
                         state.mode = ""
                     }
                     break
                 case 0x10: // 0x10: Target Temperature
-                    def setpointValue = zigbee.convertHexToInt(fncmd)
-                    log.debug "target temp: "+setpointValue
+                    def setpointValue = fncmd
+                    log.debug "target temp: ${setpointValue}"
                     sendEvent(name: "heatingSetpoint", value: setpointValue as int, unit: "C", displayed: true)
                     sendEvent(name: "coolingSetpoint", value: setpointValue as int, unit: "C", displayed: false)
                     if (setpointValue == state.setpoint)  {
@@ -121,12 +118,12 @@ def parse(String description) {
                     }
                     break
                 case 0x18: // 0x18 : Current Temperature
-                    def currentTemperatureValue = zigbee.convertHexToInt(fncmd)/10
-                    log.debug "current temp: "+currentTemperatureValue
+                    def currentTemperatureValue = fncmd/10
+                    log.debug "current temp: ${currentTemperatureValue}"
                     sendEvent(name: "temperature", value: currentTemperatureValue, unit: "C", displayed: true)
                     break
                 case 0x03: // 0x03 : Scheduled/Manual Mode
-                    if (fncmd == "00") {
+                    if (fncmd == 0) {
                         log.debug "scheduled mode"
                         if (forceManual == "1") {
                             setManualMode()
@@ -145,17 +142,17 @@ def parse(String description) {
 }
 
 def setThermostatMode(mode){
-    log.debug "setThermostatMode("+mode+")"
+    log.debug "setThermostatMode(${mode})"
     state.mode = mode
     runIn(4, modeReceiveCheck, [overwrite:true])
     sendTuyaCommand("01", DP_TYPE_BOOL, (mode=="heat")?"01":"00")
 }
 
 def setHeatingSetpoint(temperature){
-    log.debug "setHeatingSetpoint("+temperature+")"
+    log.debug "setHeatingSetpoint(${temperature})"
     def settemp = temperature as int 
     settemp += (settemp != temperature && temperature > device.currentValue("heatingSetpoint")) ? 1 : 0
-    log.debug "change setpoint to "+settemp
+    log.debug "change setpoint to ${settemp}"
     state.setpoint = settemp
     runIn(4, setpointReceiveCheck, [overwrite:true])
     sendTuyaCommand("10", DP_TYPE_VALUE, zigbee.convertToHexString(settemp as int, 8))
