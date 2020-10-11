@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.0.0) 
+ *  Tuya Window Shade (v.0.4.1.0) 
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -216,6 +216,7 @@ def presetPosition() {
 def installed() {
 	log.info "installed()"
 	state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
+	state.default_fixpercent == null
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
@@ -264,19 +265,27 @@ private sendTuyaCommand(dp, dp_type, fncmd) {
 
 private getPACKET_ID() {
 	state.packetID = ((state.packetID ?: 0) + 1 ) % 65536
-	return zigbee.convertToHexString(state.packetID, 4)
+	zigbee.convertToHexString(state.packetID, 4)
 }
 
 private levelVal(n) {
-	return (int)(((fixpercent == "Fix percent") ^ isZemiCurtain()) ? 100 - n : n)
+	if (state.default_fixpercent == null) {
+		def fixpercent_devices = ["owvfni3", "ogaemzt", "zbp6j0u"]
+		def dev = fixpercent_devices.find { device.getDataValue("manufacturer").indexOf(it) >= 0 }
+		state.default_fixpercent = (dev != null)
+		log.debug "default fixpercent for this device is set to ${state.default_fixpercent}"
+	}
+	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - n : n)
 }
 
 private cmdVal(c) {
-	return (fixcommand == "Fix command") ? 2 - c : c
+	//return (fixcommand == "Fix command") ? 2 - c : c
+	return c
 }
 
 private directionVal(c) {
-	return ((fixcommand == "Fix command") ^ (isZemiBlind() & (reverse != "Reverse"))   ) ? 1 - c : c
+	//return ( (isZemiBlind() && (reverse != "Reverse")) ^ (fixcommand == "Fix command") ) ? 1 - c : c
+	return (isZemiBlind() && (reverse != "Reverse")) ? 1 - c : c
 }
 
 private isZemiCurtain() {
