@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.1.0) 
+ *  Tuya Window Shade (v.0.4.1.1) 
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -275,7 +275,8 @@ private levelVal(n) {
 		state.default_fixpercent = (dev != null)
 		log.debug "default fixpercent for this device is set to ${state.default_fixpercent}"
 	}
-	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - n : n)
+	def pct = n & 0xFF
+	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - pct : pct)
 }
 
 private cmdVal(c) {
