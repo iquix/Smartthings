@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.2.2) - debug version
+ *  Tuya Window Shade (v.0.4.2.3) - debug version
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -276,7 +276,7 @@ private levelVal(n, type=null) {
 	def pct = n & 0xFF
 	//extreamly awkward percent packet in "ogaemzt" device 
 	if (state.default_fix_percent == "ogaemzt") {
-		return (int)(((fixpercent == "Fix percent") ^ (type != "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
+		return (int)(((fixpercent == "Fix percent") ^ (type == "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
 	} else {
 		return (int)(((fixpercent == "Fix percent") ^ state.default_fix_percent) ? 100 - pct : pct)	
 	}
