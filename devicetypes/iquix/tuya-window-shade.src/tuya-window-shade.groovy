@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.2.1) 
+ *  Tuya Window Shade (v.0.4.2.2) - debug version
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -216,7 +216,7 @@ def presetPosition() {
 def installed() {
 	log.info "installed()"
 	state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
-	state.default_fixpercent == null
+	state.default_fix_percent == null
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
@@ -270,24 +270,16 @@ private getPACKET_ID() {
 }
 
 private levelVal(n, type=null) {
-	if (state.default_fixpercent == null) {
-			calcDefaultFixpercent()
-	}
+	//if (state.default_fix_percent == null) {
+	calcDefaultFixpercent()
+	//}
 	def pct = n & 0xFF
-	/*
-	extreamly awkward percent packet in "ogaemzt" device : command% is (close=0%, open=100%) only in forward setting, otherwise (close=100%, open=0%)
-	 - forward
-	   - command% : original (close=0%, open=100%)
-	   - state% : fix percent (close=100%, open=0%)
-	 - reverse
-	   - command% : fix percent (close=100%, open=0%)
-	   - state% : fix percent (close=100%, open=0%)
-	*/
-	if (state.default_fixpercent == "ogaemzt") {
-    	return (int)(((fixpercent == "Fix percent") ^ (type != "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
+	//extreamly awkward percent packet in "ogaemzt" device 
+	if (state.default_fix_percent == "ogaemzt") {
+		return (int)(((fixpercent == "Fix percent") ^ (type != "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
 	} else {
-    	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - pct : pct)	
-    }
+		return (int)(((fixpercent == "Fix percent") ^ state.default_fix_percent) ? 100 - pct : pct)	
+	}
 	
 }
 
@@ -304,8 +296,8 @@ private directionVal(c) {
 private calcDefaultFixpercent() {
 	def fixpercent_devices = ["owvfni3", "zbp6j0u"]
 	def dev = fixpercent_devices.find { device.getDataValue("manufacturer").indexOf(it) >= 0 }
-	state.default_fixpercent = isOgaemzt() ? "ogaemzt" : (dev != null)
-	log.debug "default fixpercent for this device is set to ${state.default_fixpercent}"
+	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
+	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
 }
 
 private isZemiCurtain() {
@@ -317,5 +309,5 @@ private isZemiBlind() {
 }
 
 private isOgaemzt() {
-	return (device.getDataValue("manufacturer").indexOf("Ogaemzt") >= 0)
+	return (device.getDataValue("manufacturer").indexOf("ogaemzt") >= 0)
 }
