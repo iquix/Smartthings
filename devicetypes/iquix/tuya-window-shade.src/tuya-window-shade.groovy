@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.2.0) 
+ *  Tuya Window Shade (v.0.4.2.1) 
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -205,7 +205,7 @@ def setLevel(data, rate = null) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
 	}
 	runIn(10, "levelSet", [overwrite:true])
-	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
+	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data, "CMD"), 8))
 }
 
 
@@ -269,12 +269,26 @@ private getPACKET_ID() {
 	zigbee.convertToHexString(state.packetID, 4)
 }
 
-private levelVal(n) {
+private levelVal(n, type=null) {
 	if (state.default_fixpercent == null) {
 			calcDefaultFixpercent()
 	}
 	def pct = n & 0xFF
-	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - pct : pct)
+	/*
+	extreamly awkward percent packet in "ogaemzt" device : command% is (close=0%, open=100%) only in forward setting, otherwise (close=100%, open=0%)
+	 - forward
+	   - command% : original (close=0%, open=100%)
+	   - state% : fix percent (close=100%, open=0%)
+	 - reverse
+	   - command% : fix percent (close=100%, open=0%)
+	   - state% : fix percent (close=100%, open=0%)
+	*/
+	if (state.default_fixpercent == "ogaemzt") {
+    	return (int)(((fixpercent == "Fix percent") ^ (type != "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
+	} else {
+    	return (int)(((fixpercent == "Fix percent") ^ state.default_fixpercent) ? 100 - pct : pct)	
+    }
+	
 }
 
 private cmdVal(c) {
@@ -289,11 +303,8 @@ private directionVal(c) {
 
 private calcDefaultFixpercent() {
 	def fixpercent_devices = ["owvfni3", "zbp6j0u"]
-	def fixpercent_negate_on_reverse = ["ogaemzt"]
-	
 	def dev = fixpercent_devices.find { device.getDataValue("manufacturer").indexOf(it) >= 0 }
-	def dev_negate = fixpercent_negate_on_reverse.find { device.getDataValue("manufacturer").indexOf(it) >= 0 }
-	state.default_fixpercent = (dev != null) ^ (reverse != "Reverse" && dev_negate != null)
+	state.default_fixpercent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fixpercent}"
 }
 
@@ -303,4 +314,8 @@ private isZemiCurtain() {
 
 private isZemiBlind() {
 	return (device.getDataValue("manufacturer").indexOf("mcdj3aq") >= 0)
+}
+
+private isOgaemzt() {
+	return (device.getDataValue("manufacturer").indexOf("Ogaemzt") >= 0)
 }
