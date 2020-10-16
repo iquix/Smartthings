@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.2.3) - debug version
+ *  Tuya Window Shade (v.0.4.2.4) - debug version
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -274,9 +274,9 @@ private levelVal(n, type=null) {
 	calcDefaultFixpercent()
 	//}
 	def pct = n & 0xFF
-	//extreamly awkward percent packet in "ogaemzt" device 
+	//extremly awkward percent packet in "ogaemzt" device. special thanks to 경기PA팬텀
 	if (state.default_fix_percent == "ogaemzt") {
-		return (int)(((fixpercent == "Fix percent") ^ (type == "CMD" || reverse == "Reverse")) ? 100 - pct : pct)	
+		return (int)(((fixpercent == "Fix percent") ^ (n == pct)) ? 100 - pct : pct)
 	} else {
 		return (int)(((fixpercent == "Fix percent") ^ state.default_fix_percent) ? 100 - pct : pct)	
 	}
