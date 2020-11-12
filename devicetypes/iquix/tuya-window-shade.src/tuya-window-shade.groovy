@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.2.4) - debug version
+ *  Tuya Window Shade (v.0.4.3.0)
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -26,11 +26,13 @@ metadata {
 
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
@@ -205,7 +207,7 @@ def setLevel(data, rate = null) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
 	}
 	runIn(10, "levelSet", [overwrite:true])
-	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data, "CMD"), 8))
+	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
 
@@ -269,10 +271,10 @@ private getPACKET_ID() {
 	zigbee.convertToHexString(state.packetID, 4)
 }
 
-private levelVal(n, type=null) {
-	//if (state.default_fix_percent == null) {
-	calcDefaultFixpercent()
-	//}
+private levelVal(n) {
+	if (state.default_fix_percent == null) {
+		calcDefaultFixpercent()
+	}
 	def pct = n & 0xFF
 	//extremly awkward percent packet in "ogaemzt" device. special thanks to 경기PA팬텀
 	if (state.default_fix_percent == "ogaemzt") {
@@ -295,19 +297,23 @@ private directionVal(c) {
 
 private calcDefaultFixpercent() {
 	def fixpercent_devices = ["owvfni3", "zbp6j0u"]
-	def dev = fixpercent_devices.find { device.getDataValue("manufacturer").indexOf(it) >= 0 }
+	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
 }
 
+private getProductId() {
+	return device.getDataValue("manufacturer")[-7..-1]
+}
+
 private isZemiCurtain() {
-	return (device.getDataValue("manufacturer").indexOf("owvfni3") >= 0)
+	return (productId == "owvfni3")
 }
 
 private isZemiBlind() {
-	return (device.getDataValue("manufacturer").indexOf("mcdj3aq") >= 0)
+	return (productId == "mcdj3aq" || productId == "zo2pocs")
 }
 
 private isOgaemzt() {
-	return (device.getDataValue("manufacturer").indexOf("ogaemzt") >= 0)
+	return (productId == "ogaemzt")
 }
