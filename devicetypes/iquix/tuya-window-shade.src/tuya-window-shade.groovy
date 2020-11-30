@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.3.0)
+ *  Tuya Window Shade (v.0.4.3.1)
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -24,18 +24,20 @@ metadata {
 
 		command "pause"
 
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
 		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_zpzndjez", model: "pzndjez", deviceJoinName: "Tuya Window Treatment" // DS82
 	}
 
 	preferences {
@@ -296,7 +298,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
