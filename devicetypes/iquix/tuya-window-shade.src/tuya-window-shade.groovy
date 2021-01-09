@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.4.3.1)
+ *  Tuya Window Shade (v.0.5.0.0)
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -24,20 +24,22 @@ metadata {
 
 		command "pause"
 
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
-		fingerprint profileId: "0104", inClusters: "0000, 000A, 0004, 0005, 00EF", outClusters: "0019", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
-		fingerprint profileId: "0104", inClusters: "0000, 0003, 0004, 0005, 0006", outClusters: "0019", manufacturer: "_TYST11_zpzndjez", model: "pzndjez", deviceJoinName: "Tuya Window Treatment" // DS82
+		fingerprint profileId: "0104", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_bqcqqjpb", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750L *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
+		fingerprint profileId: "0104", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
+		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
+		fingerprint profileId: "0104", manufacturer: "_TYST11_bqcqqjpb", model: "qcqqjpb", deviceJoinName: "Tuya Window Treatment" // YS-MT750L
+		fingerprint profileId: "0104", manufacturer: "_TYST11_zpzndjez", model: "pzndjez", deviceJoinName: "Tuya Window Treatment" // DS82
 	}
 
 	preferences {
@@ -80,6 +82,7 @@ metadata {
 
 private getCLUSTER_TUYA() { 0xEF00 }
 private getSETDATA() { 0x00 }
+private getINIT_DEVICE() { 0x03 }
 
 // tuya DP type
 private getDP_TYPE_BOOL() { "01" }
@@ -107,6 +110,8 @@ def parse(String description) {
 								log.debug "moving from position 100 : must be closing"
 								levelEventMoving(0)
 							}
+						} else if (productId == "qcqqjpb") {
+							return
 						} else {
 							if (directionVal(fncmd) == 0) {
 								log.debug "opening"
@@ -117,13 +122,17 @@ def parse(String description) {
 							}
 						}
 						break
-					case 0x01: // 0x01: Control -- Opening/closing/stopping (triggered from Zigbee)
-						if (cmdVal(fncmd) == 0) {
+					case 0x01: // 0x01: Control -- Opening/closing/stopped
+						def stat = cmdVal(fncmd)
+						state.lastdp1 = stat
+						if (stat == 0) {
 							log.debug "opening"
 							levelEventMoving(100)
-						} else if (cmdVal(fncmd) == 2) {
+						} else if (stat == 2) {
 							log.debug "closing"
 							levelEventMoving(0)
+						} else if (stat == 1) {
+							log.debug "stopped"
 						}
 						break
 					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
@@ -133,11 +142,22 @@ def parse(String description) {
 						break
 					case 0x03: // 0x03: Percent state -- Arrived at position
 						def pos = levelVal(fncmd)
+						if (productId == "qcqqjpb" && (state.lastdp1 == 0 || state.lastdp1 == 2)) {
+							log.debug "moving from position: "+pos
+							return
+						}
 						log.debug "arrived at position: "+pos
 						levelEventArrived(pos)
 						break
-					case 0x67: // 0x03: Reached the limit (YS-MT750 only)
-						log.debug "Reached the limit position. the motor has the limit set at this position."
+					case 0x05: // 0x05: Direction state
+						log.debug "direction state of the motor is "+ (fncmd ? "reverse" : "forward")
+						break
+					case 0x67: // 0x67: Completion of limit setttings (YS-MT750 only)
+						if (state?.direction_post) {
+							state.autolimit = null
+							log.debug "*** automatic limit settings complete. moving to 50% position... ***"
+							moveTo50()
+						}
 						break
 				}
 			}
@@ -152,9 +172,9 @@ private levelEventMoving(currentLevel) {
 		log.debug "Ignore invalid reports"
 	} else {
 		if (lastLevel < currentLevel) {
-			sendEvent([name:"windowShade", value: "opening", displayed: true])
+			sendEvent(name:"windowShade", value: "opening", displayed: true)
 		} else if (lastLevel > currentLevel) {
-			sendEvent([name:"windowShade", value: "closing", displayed: true])
+			sendEvent(name:"windowShade", value: "closing", displayed: true)
 		}
 		state.levelRestoreValue = lastLevel
 		runIn(90, "levelRestore", [overwrite:true])
@@ -219,24 +239,34 @@ def presetPosition() {
 
 def installed() {
 	log.info "installed()"
-	state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
-	state.default_fix_percent == null
+	state.preferences = null
+	state.default_fix_percent = null
+	state.autolimit = null
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
-	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
-	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
-}
+	sendEvent(name: "windowShade", value: "unknown", displayed: false)
+	sendEvent(name: "level", value: 50, displayed: false)
+	return
+} 
 
 def updated() {
 	log.info "updated()"
 	calcDefaultFixpercent()
-	if (state.preferences != "|${reverse}|${fixpercent}|${fixcommand}|") {
-		state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
-		def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
-		cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
-		runIn(2, "setDirection")
+	if (state?.preferences != null) {
+		def prev_pref = state.preferences?.tokenize("|")
+		if ((prev_pref[0] == "Reverse") ^ (reverse == "Reverse")) {
+			log.debug "reverse mode changed : ${prev_pref[0]} -> ${reverse}. inverting state and level"
+			levelEventArrived(100 - device.currentValue("level"))
+			setDirection()
+		}
+		if ((prev_pref[1] == "Fix percent") ^ (fixpercent == "Fix percent")) {
+			log.debug "fix percent changed : ${prev_pref[1]} -> ${fixpercent}. inverting state and level"
+			levelEventArrived(100 - device.currentValue("level"))
+		}
 	} else {
 		setDirection()
 	}
+	state.preferences = "|${reverse}|${fixpercent}|${fixcommand}|"
+	return
 }
 
 def levelSet() {
@@ -253,15 +283,30 @@ def levelRestore() {
 	}
 }
 
-def setDirection() {
+private setDirection() {
 	log.info "setDirection()"
 	def cmds = sendTuyaCommand("05", DP_TYPE_ENUM, (reverse == "Reverse") ? "01" : "00")
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
+	runIn(5, directionPostProcess)
 }
 
-private doLimitTravel() {
-	log.info "doLimitTravel()"
-	sendTuyaCommand("06", DP_TYPE_BOOL, "01")
+def directionPostProcess() {
+	log.info "directionPostProcess()"
+	def cmds
+	if (isAutoLimitSupported) {
+		log.debug "*** this device is capable of automatic limit settings. starting automatic limit settings... ***"
+		state.autolimit = true
+		cmds = sendTuyaCommand("06", DP_TYPE_BOOL, "01")
+	} else {
+		cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
+	}
+   	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
+}
+
+def moveTo50() {
+	log.info "moveTo50()"
+  	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
+	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
 }
 
 private sendTuyaCommand(dp, dp_type, fncmd) {
@@ -298,7 +343,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
@@ -318,4 +363,8 @@ private isZemiBlind() {
 
 private isOgaemzt() {
 	return (productId == "ogaemzt")
+}
+
+private getIsAutoLimitSupported() {
+	return (productId == "dtjuw7u")
 }
