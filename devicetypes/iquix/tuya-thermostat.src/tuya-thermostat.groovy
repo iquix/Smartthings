@@ -133,6 +133,7 @@ def parse(String description) {
                     }
                     break
                 case 0x24: // 0x24 : operating state
+                	sendEvent(name: "thermostatOperatingState", value: (fncmd ? "idle" : "heating"), displayed: true)
                     break
             }
         } else {
@@ -184,6 +185,7 @@ def installed() {
     log.info "installed()"
     sendEvent(name: "supportedThermostatModes", value: JsonOutput.toJson(["heat", "off"]), displayed: false)
     sendEvent(name: "thermostatMode", value: "off", displayed: false)
+    sendEvent(name: "thermostatOperatingState", value: "idle", displayed: false)
     sendEvent(name: "heatingSetpoint", value: 0, unit: "C", displayed: false)
     sendEvent(name: "coolingSetpoint", value: 0, unit: "C", displayed: false)
     sendEvent(name: "temperature", value: 0, unit: "C", displayed: false)
