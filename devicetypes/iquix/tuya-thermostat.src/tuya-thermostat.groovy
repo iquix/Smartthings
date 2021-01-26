@@ -1,5 +1,5 @@
 /**
- *  Tuya Thermostat (v.0.1.1.0)
+ *  Tuya Thermostat (v.0.1.2.0)
  *    Copyright 2020 Jaewon Park
  *
  *    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -15,9 +15,12 @@
 import groovy.json.JsonOutput
 
 metadata {
-    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix", vid: "generic-radiator-thermostat") {
+    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix") { //, vid: "generic-radiator-thermostat") {
         capability "Thermostat"
+        capability "Thermostat Mode"
+        capability "Thermostat Heating Setpoint"
         capability "Temperature Measurement"        
+        capability "Thermostat Operating State"
         capability "Refresh"
         capability "Actuator"
         capability "Sensor"
