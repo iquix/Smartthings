@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.5.0.0)
+ *  Tuya Window Shade (v.0.5.0.1)
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_bqcqqjpb", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750L *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_nueqqe6k", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Smart Motorized Chain Roller *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
@@ -40,6 +41,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", manufacturer: "_TYST11_bqcqqjpb", model: "qcqqjpb", deviceJoinName: "Tuya Window Treatment" // YS-MT750L
 		fingerprint profileId: "0104", manufacturer: "_TYST11_zpzndjez", model: "pzndjez", deviceJoinName: "Tuya Window Treatment" // DS82
+		fingerprint profileId: "0104", manufacturer: "_TYST11_nueqqe6k", model: "ueqqe6k", deviceJoinName: "Tuya Window Treatment" // Smart Motorized Chain Roller
 	}
 
 	preferences {
@@ -136,10 +138,13 @@ def parse(String description) {
 						}
 						break
 					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
-						def pos = levelVal(fncmd)
-						log.debug "moving to position: "+pos
-						levelEventMoving(pos)
-						break
+						if (productId != "ueqqe6k") {
+							def pos = levelVal(fncmd)
+							log.debug "moving to position: "+pos
+							levelEventMoving(pos)
+							break
+						}
+						// "ueqqe6k" sends current position packet with dp 2, so it will be processed with the following code.
 					case 0x03: // 0x03: Percent state -- Arrived at position
 						def pos = levelVal(fncmd)
 						if (productId == "qcqqjpb" && (state.lastdp1 == 0 || state.lastdp1 == 2)) {
@@ -343,7 +348,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
