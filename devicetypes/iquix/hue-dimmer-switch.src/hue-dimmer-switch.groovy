@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.8
+ *  Hue Dimmer Switch ver 0.1.7
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -189,7 +189,7 @@ private setReleased() {
 
 
 def refresh() {
-	def ep = zigbee.convertHexToInt(device.getDataValue("endpointId"))
+	def ep = (device.getDataValue("model")=="RWL022") ? 0x01 : 0x02
 	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint: ep]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint: ep])
 	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint: ep])
 	log.debug "refresh() returns " + refreshCmds
