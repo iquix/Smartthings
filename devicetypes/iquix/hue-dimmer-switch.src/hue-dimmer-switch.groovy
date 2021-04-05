@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.1.7
+ *  Hue Dimmer Switch ver 0.1.8
  *
  *  Copyright 2020 Jaewon Park
  *
@@ -28,9 +28,10 @@ metadata {
 		attribute "lastCheckin", "string"
 		attribute "lastButtonState", "string"
 		attribute "lastButtonName", "string"
-		
+
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch"
 		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch"
+		fingerprint profileId: "0104", endpointId: "01", application:"02", outClusters: "0019, 0000, 0003, 0004, 0006, 0008, 0005, 1000", inClusters: "0000, 0001, 0003, FC00, 1000", manufacturer: "Signify Netherlands B.V.", model: "RWL022", deviceJoinName: "Hue Dimmer Switch"
 	}
 	preferences {
 		input name: "holdTimingValue", type: "enum", title: "Hold event firing timing", options:["0": "When Hold starts", "1": "When Hold ends"], defaultValue: "0"
@@ -188,8 +189,9 @@ private setReleased() {
 
 
 def refresh() {
-	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint:0x02]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint:0x02])
-	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint:0x02])
+	def ep = zigbee.convertHexToInt(device.getDataValue("endpointId"))
+	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint: ep]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint: ep])
+	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint: ep])
 	log.debug "refresh() returns " + refreshCmds
 	return refreshCmds
 }
