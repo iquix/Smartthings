@@ -136,7 +136,7 @@ def parse(String description) {
                     }
                     break
                 case 0x24: // 0x24 : operating state
-                	sendEvent(name: "thermostatOperatingState", value: (fncmd ? "idle" : "heating"), displayed: true)
+                    sendEvent(name: "thermostatOperatingState", value: (fncmd ? "idle" : "heating"), displayed: true)
                     break
             }
         } else {
