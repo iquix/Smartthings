@@ -1,5 +1,5 @@
 /**
- *  Tuya Window Shade (v.0.5.0.1)
+ *  Tuya Window Shade (v.0.5.0.2)
  *	Copyright 2020 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -27,6 +27,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TZE200_5sbebbzs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
@@ -36,6 +37,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TYST11_5sbebbzs", model: "sbebbzs", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery
 		fingerprint profileId: "0104", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", manufacturer: "_TYST11_fdtjuw7u", model: "dtjuw7u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
@@ -138,13 +140,13 @@ def parse(String description) {
 						}
 						break
 					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
-						if (productId != "ueqqe6k") {
+						if (!supportRealTimePosition()) {
 							def pos = levelVal(fncmd)
 							log.debug "moving to position: "+pos
 							levelEventMoving(pos)
 							break
 						}
-						// "ueqqe6k" sends current position packet with dp 2, so it will be processed with the following code.
+						// supportRealTimePosition() devices send current position packet with dp 2, so it will be processed with the following code.
 					case 0x03: // 0x03: Percent state -- Arrived at position
 						def pos = levelVal(fncmd)
 						if (productId == "qcqqjpb" && (state.lastdp1 == 0 || state.lastdp1 == 2)) {
@@ -372,4 +374,8 @@ private isOgaemzt() {
 
 private getIsAutoLimitSupported() {
 	return (productId == "dtjuw7u")
+}
+
+private supportRealTimePosition() {
+	return (productId == "ueqqe6k" || productId == "sbebbzs")
 }
