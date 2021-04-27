@@ -350,7 +350,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
