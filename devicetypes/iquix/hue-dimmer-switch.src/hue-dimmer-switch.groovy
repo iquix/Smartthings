@@ -34,7 +34,7 @@ metadata {
 		fingerprint profileId: "0104", endpointId: "01", application:"02", outClusters: "0019, 0000, 0003, 0004, 0006, 0008, 0005, 1000", inClusters: "0000, 0001, 0003, FC00, 1000", manufacturer: "Signify Netherlands B.V.", model: "RWL022", deviceJoinName: "Hue Dimmer Switch"
 	}
 	preferences {
-		input name: "holdTimingValue", type: "enum", title: "Held Event Firing Timing", options:["0": "When Holding Starts", "1": "When Holding Ends", "2": "Fire Multiple Held Events while Holding"], defaultValue: "0"
+		input name: "holdTimingValue", type: "enum", title: "Hold event firing timing", options:["0": "When Hold starts", "1": "When Hold ends"], defaultValue: "0"
 	}
 	tiles {
 		multiAttributeTile(name: "button", type: "generic", width: 6, height: 4, canChangeIcon: true) {
@@ -135,19 +135,21 @@ private getButtonResult(rawValue) {
 	
 	def button = zigbee.convertHexToInt(rawValue[0])
 	def buttonState = rawValue[4]
-	def buttonHoldTime = zigbee.convertHexToInt(rawValue[6])
+	def buttonHoldTime = rawValue[6]
 	log.debug "Button data : button=${button}  buttonState=${buttonState}  buttonHoldTime=${buttonHoldTime}"
 	
-	if (buttonState == "00") {  // button pressed
+	if ( buttonState == "00" ) {  // button pressed
 		return [:]
-	} else if (buttonState == "02") {  // button released after push
+	} else if ( buttonState == "02" ) {  // button released after push
 		buttonStateTxt = "pushed"
-	} else if (buttonState == "03") {  // button released after hold
-		buttonStateTxt = (HOLDTIMING == "1")? "held" : "released"
-	} else if (buttonHoldTime == 8 && HOLDTIMING != "1") {  // The button started being held
-		buttonStateTxt = "held"
-	} else if (buttonHoldTime > 8 && HOLDTIMING == "2") {  // The button is continuously being held
-		buttonStateTxt = "held"
+	} else if ( buttonState == "03" ) {  // button released after hold
+		buttonStateTxt = (HOLDTIMING)? "held" : "released"
+	} else if ( buttonHoldTime == "08" ) {  // The button is being held
+		if (HOLDTIMING) {
+			return [:]
+		} else {
+			buttonStateTxt = "held"
+		}
 	} else {
 		return [:]
 	}
@@ -160,7 +162,7 @@ private getButtonResult(rawValue) {
 	if (buttonStateTxt == "pushed" || buttonStateTxt == "held") {
 		result << createEvent(name: "button", value: buttonStateTxt, data: [buttonNumber: button], descriptionText: descriptionText, isStateChange: true, displayed: false)
 		sendButtonEvent(button, buttonStateTxt)
-		if (buttonStateTxt == "pushed" || HOLDTIMING == "1") {
+		if (buttonStateTxt == "pushed" || HOLDTIMING) {
 			runIn(1, "setReleased", [overwrite:true])
 		}
 	}
@@ -257,5 +259,5 @@ private channelNumber(String dni) {
 }
 
 private getHOLDTIMING() {
-	holdTimingValue ?: "0"
+	return (holdTimingValue=="1")
 }
