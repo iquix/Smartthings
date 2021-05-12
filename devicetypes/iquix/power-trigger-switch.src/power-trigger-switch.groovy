@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.2.1
+ *  Power Trigger Switch 0.3.0
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -13,11 +13,12 @@
  *
  */
 metadata {
-	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.switch") { 
+	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", mnmn: "SmartThingsCommunity", vid: "4a2e7ee8-cd69-37e0-8df9-ae5b09027a38") { 
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
 		capability "Switch"
+		capability "Button"
 		capability "Power Meter"
 		capability "Health Check"
 	}
@@ -130,10 +131,12 @@ def processPower() {
 
 def off() {
 	sendEvent(name: "switch", value: state.switch)
+	sendEvent(name: "button", value: "held", displayed: false)
 }
 
 def on() {
 	sendEvent(name: "switch", value: state.switch)
+	sendEvent(name: "button", value: "pushed", displayed: false)
 }
 
 def refresh() {
