@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.1
+ *  Power Trigger Switch 0.3.3
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,8 +12,11 @@
  *	for the specific language governing permissions and limitations under the License.
  *
  */
+
+import groovy.json.JsonOutput
+
 metadata {
-	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", mnmn: "SmartThingsCommunity", vid: "4a2e7ee8-cd69-37e0-8df9-ae5b09027a38") { 
+	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", mnmn: "SmartThingsCommunity", vid: "4a2e7ee8-cd69-37e0-8df9-ae5b09027a38", ocfDeviceType: "oic.d.switch") { 
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
@@ -185,7 +188,8 @@ def installed() {
 	state.offTime = 0
 	state.switch="off"
 	sendEvent(name: "switch", value: "off", displayed: true)
-    sendEvent(name: "button", value: "pushed", displayed: false)
+	sendEvent(name: "button", value: "pushed", displayed: false)
+	sendEvent(name: "supportedButtonValues", value: ["pushed", "held"].encodeAsJSON(), displayed: false)
 }
 
 
