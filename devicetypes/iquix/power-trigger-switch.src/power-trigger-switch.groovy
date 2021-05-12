@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.3
+ *  Power Trigger Switch 0.3.4
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -134,12 +134,12 @@ def processPower() {
 
 def off() {
 	sendEvent(name: "switch", value: state.switch)
-	sendEvent(name: "button", value: "held", displayed: false)
+	sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
 }
 
 def on() {
 	sendEvent(name: "switch", value: state.switch)
-	sendEvent(name: "button", value: "pushed", displayed: false)
+	sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
 }
 
 def refresh() {
@@ -188,7 +188,7 @@ def installed() {
 	state.offTime = 0
 	state.switch="off"
 	sendEvent(name: "switch", value: "off", displayed: true)
-	sendEvent(name: "button", value: "pushed", displayed: false)
+	sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: false)
 	sendEvent(name: "supportedButtonValues", value: ["pushed", "held"].encodeAsJSON(), displayed: false)
 }
 
