@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.2.0
+ *  Power Trigger Switch 0.2.1
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -49,7 +49,7 @@ metadata {
 
 // Parse incoming device messages to generate events
 def parse(String description) {
-	log.debug "description is $description"
+	//log.debug "description is $description"
 	def event = zigbee.getEvent(description)
 	if (event) {
 		if (event.name == "power") {
@@ -72,10 +72,10 @@ def parse(String description) {
 			sendEvent(event)
 		}
 	}
-	else {
+	/*else {
 		log.warn "DID NOT PARSE MESSAGE for description : $description"
 		log.debug zigbee.parseDescriptionAsMap(description)
-	}
+	}*/
 }
 
 def processPower() {
@@ -84,12 +84,11 @@ def processPower() {
 	def offThresholdVal = offThreshold ?: 1
 	def onDurationVal = onDuration ?: 15
 	def offDurationVal = offDuration ?: 5
-
 	
-	log.debug "--processPower() : Power:{${p}}  Switch:{${state.switch}}  OnThreshold:{${onThresholdVal}} OffThreshold:{${offThresholdVal}}"
+	//log.debug "processPower() : Power:{${p}}  Switch:{${state.switch}}  OnThreshold:{${onThresholdVal}} OffThreshold:{${offThresholdVal}}"
 	
 	if (p >= onThresholdVal && state.switch == "off") {
-		log.debug "processPower() onTrigger started "+now() + "-" +state.onTime
+		log.debug "processPower() OnTrigger : Power{${p}} >= OnThreshold{${onThresholdVal}} at ${now()}. On trigger start time = ${state.onTime}"
 		if (state.onTime == 0) {
 			state.onTime = now()
 			if (isTuya) {
@@ -98,7 +97,7 @@ def processPower() {
 				runIn(onDurationVal+1, processPower)
 			}
 		} else if (now() - state.onTime >= (onDurationVal-1)*1000) {
-			log.debug "set switch status to on"
+			log.debug "Setting switch status to on"
 			state.switch = "on"
 			sendEvent(name: "switch", value: "on", displayed: true)
 			state.onTime = 0
@@ -109,7 +108,7 @@ def processPower() {
 	}
 
 	if (p <= offThresholdVal && state.switch == "on") {
-		log.debug "processPower() offTrigger started "+now() + "-" +state.offTime
+		log.debug "processPower() OffTrigger : Power{${p}} <= OffThreshold{${onThresholdVal}} at ${now()}. Off trigger start time = ${state.offTime}"
 		if (state.offTime == 0) {
 			state.offTime = now()
 			if (isTuya) {
@@ -118,7 +117,7 @@ def processPower() {
 				runIn(offDurationVal+1, processPower)
 			}
 		} else if (now() - state.offTime >= (offDurationVal-1)*1000) {
-			log.debug "set switch status to off"
+			log.debug "Setting switch status to off"
 			state.switch = "off"
 			sendEvent(name: "switch", value: "off", displayed: true)
 			state.onTime = 0
