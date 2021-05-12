@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.0
+ *  Power Trigger Switch 0.3.1
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -185,6 +185,7 @@ def installed() {
 	state.offTime = 0
 	state.switch="off"
 	sendEvent(name: "switch", value: "off", displayed: true)
+    sendEvent(name: "button", value: "pushed", displayed: false)
 }
 
 
