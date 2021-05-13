@@ -1,5 +1,5 @@
 /**
- *  Tuya Thermostat (v.0.1.2.0)
+ *  Tuya Thermostat (v.0.1.2.1)
  *    Copyright 2020 Jaewon Park
  *
  *    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,7 @@
 import groovy.json.JsonOutput
 
 metadata {
-    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix") { //, vid: "generic-radiator-thermostat") {
+    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.thermostat", mnmn: "SmartThingsCommunity", vid: "2d24169b-9cc3-394a-9bb6-21e523045a8e") {
         capability "Thermostat"
         capability "Thermostat Mode"
         capability "Thermostat Heating Setpoint"
@@ -136,7 +136,7 @@ def parse(String description) {
                     }
                     break
                 case 0x24: // 0x24 : operating state
-                	sendEvent(name: "thermostatOperatingState", value: (fncmd ? "idle" : "heating"), displayed: true)
+                    sendEvent(name: "thermostatOperatingState", value: (fncmd ? "idle" : "heating"), displayed: true)
                     break
             }
         } else {
