@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.4
+ *  Power Trigger Switch 0.3.5
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -31,6 +31,7 @@ metadata {
 		input name: "onDuration", title:"On Threshold Duration (sec)", type: "number", required: true, defaultValue: 15, range: "5..9999"
 		input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 1, range: "1..9999"
 		input name: "offDuration", title:"Off Threshold Duration (sec)", type: "number", required: true, defaultValue: 5, range: "5..9999"
+		input name: "eventOptionValue", type: "enum", title: "When to fire events that are triggered by On/Off commands?", options:[0: "Only for state changes (Default)" , 1: "Always fire events for every command"], defaultValue: 0
 	}
 
 	tiles(scale: 2) {
@@ -134,12 +135,16 @@ def processPower() {
 
 def off() {
 	sendEvent(name: "switch", value: state.switch)
-	sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
+	if (eventOption || state.switch=="on") {
+		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
+	}
 }
 
 def on() {
 	sendEvent(name: "switch", value: state.switch)
-	sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
+	if (eventOption || state.switch=="off") {
+		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
+	}
 }
 
 def refresh() {
@@ -217,4 +222,8 @@ def powerRefresh() {
 
 private getIsTuya() {
 	return (device.getDataValue("model") == "TS0121")
+}
+
+private getEventOption() {
+	return eventOptionValue ?: 0
 }
