@@ -16,7 +16,7 @@
 import groovy.json.JsonOutput
 
 metadata {
-	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", mnmn: "SmartThingsCommunity", vid: "4a2e7ee8-cd69-37e0-8df9-ae5b09027a38", ocfDeviceType: "oic.d.switch") { 
+	definition (name: "Power Trigger Switch", namespace: "iquix", author: "iquix", mnmn: "SmartThingsCommunity", vid: "20db7582-cf21-33d2-a3e7-9a16e12d9426", ocfDeviceType: "oic.d.switch") { 
 		capability "Actuator"
 		capability "Configuration"
 		capability "Refresh"
