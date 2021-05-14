@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.6
+ *  Power Trigger Switch 0.3.7
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -28,9 +28,9 @@ metadata {
 
 	preferences {
 		input name: "onThreshold", title:"On Threshold Power (W)", type: "number", required: true, defaultValue: 15, range: "1..9999"
-		input name: "onDuration", title:"On Threshold Duration (sec)", type: "number", required: true, defaultValue: 15, range: "5..9999"
+		input name: "onDuration", title:"On Threshold Duration (sec)", type: "number", required: true, defaultValue: 15, range: "0..9999"
 		input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 1, range: "1..9999"
-		input name: "offDuration", title:"Off Threshold Duration (sec)", type: "number", required: true, defaultValue: 5, range: "5..9999"
+		input name: "offDuration", title:"Off Threshold Duration (sec)", type: "number", required: true, defaultValue: 5, range: "0..9999"
 		input name: "eventOptionValue", type: "enum", title: "When to fire events that are triggered by On/Off commands?", options:["0": "Only for state changes (Default)" , "1": "Always fire events for every command"], defaultValue: "0"
 	}
 
@@ -94,7 +94,7 @@ def processPower() {
 	
 	if (p >= onThresholdVal && state.switch == "off") {
 		log.debug "processPower() OnTrigger : Power{${p}} >= OnThreshold{${onThresholdVal}} at ${now()}. On trigger start time = ${state.onTime}"
-		if (state.onTime == 0) {
+		if (state.onTime == 0 && onDurationVal > 1) {
 			state.onTime = now()
 			if (isTuya) {
 				runIn(onDurationVal, powerRefresh, [overwrite: false])
@@ -114,7 +114,7 @@ def processPower() {
 
 	if (p <= offThresholdVal && state.switch == "on") {
 		log.debug "processPower() OffTrigger : Power{${p}} <= OffThreshold{${onThresholdVal}} at ${now()}. Off trigger start time = ${state.offTime}"
-		if (state.offTime == 0) {
+		if (state.offTime == 0 && offDurationVal > 1) {
 			state.offTime = now()
 			if (isTuya) {
 				runIn(offDurationVal, powerRefresh, [overwrite: false])
@@ -135,7 +135,6 @@ def processPower() {
 
 def off() {
 	sendEvent(name: "switch", value: state.switch)
-    log.debug eventOption
 	if (eventOption != "0" || state.switch=="on") {
 		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
 	}
@@ -143,7 +142,6 @@ def off() {
 
 def on() {
 	sendEvent(name: "switch", value: state.switch)
-    log.debug eventOption
 	if (eventOption != "0" || state.switch=="off") {
 		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
 	}
@@ -194,7 +192,7 @@ def installed() {
 	state.onTime = 0
 	state.offTime = 0
 	state.switch="off"
-	sendEvent(name: "switch", value: "off", displayed: true)
+	sendEvent(name: "switch", value: "off", displayed: false)
 	sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: false)
 	sendEvent(name: "supportedButtonValues", value: ["pushed", "held"].encodeAsJSON(), displayed: false)
 }
