@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.7
+ *  Power Trigger Switch 0.3.8
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
