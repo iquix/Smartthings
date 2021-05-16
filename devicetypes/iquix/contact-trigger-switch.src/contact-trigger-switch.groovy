@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.6-debug
+ *  Contact Trigger Switch 0.0.7-debug
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -73,7 +73,7 @@ def parse(String description) {
 			map = zigbee.getEvent(description)
 		}
 	   	if (map?.name == "switch") {
-			map = [name: 'contact', value: event.value == 'off' ? 'closed' : 'open'] 
+			map = [name: 'contact', value: map.value == 'off' ? 'closed' : 'open'] 
 		}
 	} else {
 		map = zigbee.getEvent(description)
@@ -106,7 +106,7 @@ def parse(String description) {
 		state.contact = map.value
 		processContact()
 	}
-    if (map) log.debug map
+	if (map) log.debug map
 	def result = map ? createEvent(map) : [:]
 
 	if (description?.startsWith('enroll request')) {
@@ -325,24 +325,24 @@ def processContact() {
 
 def off() {
 	log.debug "off()"
-	sendEvent(name: "switch", value: state.switch)
 	if (eventOption != "0" || state.switch=="on") {
 		log.debug "sending off command event"
 		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
 	} else {
-    	log.debug "NOT sending off command because eventOption=${eventOption}, switch=${state.switch}"
-    }
+		log.debug "NOT sending off command because eventOption=${eventOption}, switch=${state.switch}"
+	}
+	sendEvent(name: "switch", value: state.switch)
 }
 
 def on() {
 	log.debug "on()"
-	sendEvent(name: "switch", value: state.switch)
 	if (eventOption != "0" || state.switch=="off") {
 		log.debug "sending on command event"
 		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
 	} else {
-    	log.debug "NOT sending on command because eventOption=${eventOption}, switch=${state.switch}"
-    }
+		log.debug "NOT sending on command because eventOption=${eventOption}, switch=${state.switch}"
+	}
+	sendEvent(name: "switch", value: state.switch)
 }
 
 def installed() {
