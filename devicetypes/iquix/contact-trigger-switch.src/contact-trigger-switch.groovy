@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.4
+ *  Contact Trigger Switch 0.0.5
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -67,10 +67,12 @@ def parse(String description) {
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		if (description?.startsWith('catchall:')) {
 			map = lumi_catchall(description)
-		} else if ((event = zigbee.getEvent(description))) {
-        	if (event.name == "switch") {
-            	map = [name: 'contact', value: event.value == 'off' ? 'closed' : 'open'] 
-            }
+		}
+		if (map == null) {
+			map = zigbee.getEvent(description)
+		}
+	   	if (map?.name == "switch") {
+			map = [name: 'contact', value: event.value == 'off' ? 'closed' : 'open'] 
 		}
 	} else {
 		map = zigbee.getEvent(description)
@@ -237,7 +239,7 @@ def configure() {
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		sendEvent(name: 'checkInterval', value: 86400, displayed: false, data: [ protocol: 'zigbee', hubHardwareId: device.hub.hardwareID ])
 		return
-    }
+	}
 	sendEvent(name: "checkInterval", value: 2 * 60 * 60 + 1 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID, offlinePingable: "1"])
 
 	log.debug "Configuring Reporting, IAS CIE, and Bindings."
