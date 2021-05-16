@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.7-debug
+ *  Contact Trigger Switch 0.0.9-debug
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -186,6 +186,7 @@ private Map getBatteryPercentageResult(rawValue) {
 
 Map lumi_catchall(String description) {
 	def catchall = zigbee.parse(description)
+	log.debug "in lumi_catchall() : ${catchall}"
 
 	if (catchall.clusterId == 0x0000) {
 		def length = catchall.data.size()
@@ -299,7 +300,7 @@ def processContact() {
 			log.debug "Setting switch status to on"
 			state.switch = "on"
 			sendEvent(name: "switch", value: "on", displayed: true)
-			state.oTime = 0
+			state.onTime = 0
 			state.offTime = 0
 		}
 	} else {
