@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.6
+ *  Contact Trigger Switch 0.0.6-debug
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -63,12 +63,13 @@ private getSET_SHORT_POLL_INTERVAL_CMD() { 0x03 }
 
 // Parse incoming device messages to generate events
 def parse(String description) {
+	log.debug description
 	Map map = null
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		if (description?.startsWith('catchall:')) {
 			map = lumi_catchall(description)
 		}
-		if (map == [:]) {
+		if (map == [:] || map == null) {
 			map = zigbee.getEvent(description)
 		}
 	   	if (map?.name == "switch") {
@@ -105,6 +106,7 @@ def parse(String description) {
 		state.contact = map.value
 		processContact()
 	}
+    if (map) log.debug map
 	def result = map ? createEvent(map) : [:]
 
 	if (description?.startsWith('enroll request')) {
@@ -183,7 +185,6 @@ private Map getBatteryPercentageResult(rawValue) {
 }
 
 Map lumi_catchall(String description) {
-	Map result = [:]
 	def catchall = zigbee.parse(description)
 
 	if (catchall.clusterId == 0x0000) {
@@ -200,7 +201,7 @@ Map lumi_catchall(String description) {
 			}
 		}
 	}
-	return result
+	return [:]
 }
 
 
@@ -236,6 +237,7 @@ def refresh() {
 }
 
 def configure() {
+	log.debug "in configure()"
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		sendEvent(name: 'checkInterval', value: 86400, displayed: false, data: [ protocol: 'zigbee', hubHardwareId: device.hub.hardwareID ])
 		return
@@ -350,7 +352,7 @@ def installed() {
 def updated() {
 	log.debug "in updated()"
 	// updated() doesn't have it's return value processed as hub commands, so we have to send them explicitly
-	def cmds = configure()
+	def cmds = refresh()
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
 }
 
