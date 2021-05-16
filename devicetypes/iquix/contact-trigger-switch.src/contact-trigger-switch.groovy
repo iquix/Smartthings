@@ -68,7 +68,7 @@ def parse(String description) {
 		if (description?.startsWith('catchall:')) {
 			map = lumi_catchall(description)
 		}
-		if (map == null) {
+		if (map == [:]) {
 			map = zigbee.getEvent(description)
 		}
 	   	if (map?.name == "switch") {
