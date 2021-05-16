@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.5
+ *  Contact Trigger Switch 0.0.6
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -239,9 +239,11 @@ def configure() {
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		sendEvent(name: 'checkInterval', value: 86400, displayed: false, data: [ protocol: 'zigbee', hubHardwareId: device.hub.hardwareID ])
 		return
+	} else if (device.getDataValue("manufacturer") == "SmartThings" || device.getDataValue("manufacturer") == "Samjin" || isEcholink() || isBoschRadionMultiSensor() || isFrientSensor()) {
+		sendEvent(name: "checkInterval", value: 2 * 60 * 60 + 1 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID, offlinePingable: "1"])
+	} else {
+		sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
 	}
-	sendEvent(name: "checkInterval", value: 2 * 60 * 60 + 1 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID, offlinePingable: "1"])
-
 	log.debug "Configuring Reporting, IAS CIE, and Bindings."
 	def batteryAttr = device.getDataValue("manufacturer") == "Samjin" ? 0x0021 : 0x0020
 	def cmds = refresh() +
