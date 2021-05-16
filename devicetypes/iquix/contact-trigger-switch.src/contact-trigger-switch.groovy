@@ -324,17 +324,25 @@ def processContact() {
 }
 
 def off() {
+	log.debug "off()"
 	sendEvent(name: "switch", value: state.switch)
 	if (eventOption != "0" || state.switch=="on") {
+		log.debug "sending off command event"
 		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
-	}
+	} else {
+    	log.debug "NOT sending off command because eventOption=${eventOption}, switch=${state.switch}"
+    }
 }
 
 def on() {
+	log.debug "on()"
 	sendEvent(name: "switch", value: state.switch)
 	if (eventOption != "0" || state.switch=="off") {
+		log.debug "sending on command event"
 		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
-	}
+	} else {
+    	log.debug "NOT sending on command because eventOption=${eventOption}, switch=${state.switch}"
+    }
 }
 
 def installed() {
