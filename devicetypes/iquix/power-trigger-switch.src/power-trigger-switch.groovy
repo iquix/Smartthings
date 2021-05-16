@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.8
+ *  Power Trigger Switch 0.3.9
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,7 @@ metadata {
 		input name: "onDuration", title:"On Threshold Duration (sec)", type: "number", required: true, defaultValue: 15, range: "0..9999"
 		input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 1, range: "1..9999"
 		input name: "offDuration", title:"Off Threshold Duration (sec)", type: "number", required: true, defaultValue: 5, range: "0..9999"
-		input name: "eventOptionValue", type: "enum", title: "When to fire events that are triggered by On/Off commands?", options:["0": "Only for state changes (Default)" , "1": "Always fire events for every command"], defaultValue: "0"
+		input name: "eventOptionValue", type: "enum", title: "(Optional) When to fire events that are triggered by On/Off commands?", options:["0": "Only for state changes (Default)" , "1": "Always fire events for every command"], defaultValue: "0"
 	}
 
 	tiles(scale: 2) {
