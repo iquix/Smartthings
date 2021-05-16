@@ -1,5 +1,5 @@
 /**
- *  Contact Trigger Switch 0.0.9-debug
+ *  Contact Trigger Switch 0.0.9
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -63,7 +63,6 @@ private getSET_SHORT_POLL_INTERVAL_CMD() { 0x03 }
 
 // Parse incoming device messages to generate events
 def parse(String description) {
-	log.debug description
 	Map map = null
 	if (device.getDataValue("manufacturer") == "LUMI") {
 		if (description?.startsWith('catchall:')) {
@@ -106,7 +105,7 @@ def parse(String description) {
 		state.contact = map.value
 		processContact()
 	}
-	if (map) log.debug map
+	//if (map) log.debug map
 	def result = map ? createEvent(map) : [:]
 
 	if (description?.startsWith('enroll request')) {
@@ -186,7 +185,7 @@ private Map getBatteryPercentageResult(rawValue) {
 
 Map lumi_catchall(String description) {
 	def catchall = zigbee.parse(description)
-	log.debug "in lumi_catchall() : ${catchall}"
+	//log.debug "in lumi_catchall() : ${catchall}"
 
 	if (catchall.clusterId == 0x0000) {
 		def length = catchall.data.size()
@@ -329,8 +328,6 @@ def off() {
 	if (eventOption != "0" || state.switch=="on") {
 		log.debug "sending off command event"
 		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
-	} else {
-		log.debug "NOT sending off command because eventOption=${eventOption}, switch=${state.switch}"
 	}
 	sendEvent(name: "switch", value: state.switch)
 }
@@ -340,8 +337,6 @@ def on() {
 	if (eventOption != "0" || state.switch=="off") {
 		log.debug "sending on command event"
 		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
-	} else {
-		log.debug "NOT sending on command because eventOption=${eventOption}, switch=${state.switch}"
 	}
 	sendEvent(name: "switch", value: state.switch)
 }
