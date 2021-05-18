@@ -1,5 +1,5 @@
 /**
- *  Stateless Tuya Window Shade (v.0.0.1)
+*  Stateless Tuya Window Shade (v.0.0.2)
  *	Copyright 2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -15,11 +15,11 @@
 import groovy.json.JsonOutput
 
 metadata {
-	definition(name: "Stateless Tuya Window Shade", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.blind") {
+    definition(name: "Stateless Tuya Window Shade", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.blind", mnmn: "SmartThingsCommunity", vid: "ce07425a-2ae2-3d78-be3c-53ebf2f5f3c4") {
 		capability "Actuator"
 		capability "Configuration"
 		capability "Window Shade"
-
+		capability "Switch Level"
 		command "pause"
 
 		fingerprint profileId: "0104", manufacturer: "_TZE200_iossyxra", model: "TS0601", deviceJoinName: "Stateless Tuya Window Treatment" // Zemismart Zigbee Roller
@@ -32,7 +32,6 @@ metadata {
 
 private getCLUSTER_TUYA() { 0xEF00 }
 private getSETDATA() { 0x00 }
-private getINIT_DEVICE() { 0x03 }
 
 // tuya DP type
 private getDP_TYPE_BOOL() { "01" }
@@ -64,10 +63,12 @@ def pause() {
 }
 
 def setLevel(data) {
+	log.debug "setLevel(${data})"
+	sendEvent(name: "level", value: "50", displayed: false)
 	if (data < 50) {
-		close()
+		return close()
 	} else {
-		open()
+		return open()
 	}
 }
 
@@ -75,7 +76,7 @@ def installed() {
 	log.info "installed()"
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	sendEvent(name: "windowShade", value: "unknown", displayed: false)
-	return
+	sendEvent(name: "level", value: "50", displayed: false)
 } 
 
 def updated() {
