@@ -166,6 +166,10 @@ def ping() {
 	return zigbee.readAttribute(0x0001, 0x0020) // Read the Battery Level
 }
 
+def installed() {
+	textString = ""
+}
+
 def refresh() {
 	log.debug "refresh temperature, humidity, and battery"
 	return zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, 0x0020)+
