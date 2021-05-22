@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.9
+ *  Power Trigger Switch 0.3.10
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -96,7 +96,7 @@ def processPower() {
 		log.debug "processPower() OnTrigger : Power{${p}} >= OnThreshold{${onThresholdVal}} at ${now()}. On trigger start time = ${state.onTime}"
 		if (state.onTime == 0 && onDurationVal > 1) {
 			state.onTime = now()
-			if (isTuya) {
+			if (isPolling) {
 				runIn(onDurationVal, powerRefresh, [overwrite: false])
 			} else {
 				runIn(onDurationVal+1, processPower)
@@ -116,7 +116,7 @@ def processPower() {
 		log.debug "processPower() OffTrigger : Power{${p}} <= OffThreshold{${onThresholdVal}} at ${now()}. Off trigger start time = ${state.offTime}"
 		if (state.offTime == 0 && offDurationVal > 1) {
 			state.offTime = now()
-			if (isTuya) {
+			if (isPolling) {
 				runIn(offDurationVal, powerRefresh, [overwrite: false])
 			} else {
 				runIn(offDurationVal+1, processPower)
@@ -168,13 +168,13 @@ def configure() {
 	if ((device.getDataValue("manufacturer") == "Develco Products A/S") || (device.getDataValue("manufacturer") == "Aurora"))  {
 		device.updateDataValue("divisor", "1")
 	}
-	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS" || isTuya ))  {
+	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS") || (device.getDataValue("model") == "TS0121"))  {
 		device.updateDataValue("divisor", "1")
 	}
 	if ((device.getDataValue("manufacturer") == "LDS") || (device.getDataValue("manufacturer") == "REXENSE") || (device.getDataValue("manufacturer") == "frient A/S"))  {
 		device.updateDataValue("divisor", "1")
 	}
-	if (isTuya) {
+	if (isPolling) {
 		unschedule()
 		runEvery1Minute(powerRefresh)
 	}
@@ -220,8 +220,8 @@ def powerRefresh() {
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
 }
 
-private getIsTuya() {
-	return (device.getDataValue("model") == "TS0121")
+private getIsPolling() {
+	return (device.getDataValue("model") == "TS0121" && device.getDataValue("manufacturer") != "_TZ3000_8nkb7mof")
 }
 
 private getEventOption() {
