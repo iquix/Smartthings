@@ -1,5 +1,5 @@
 /**
- *  Copyright 2019 SmartThings
+ *  Copyright 2019-2021 SmartThings/iquix
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -24,8 +24,7 @@ metadata {
         capability "Sensor"
         capability "Configuration"
 
-        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", manufacturer: "_TZ3000_vtscrpmw", model: "TS0121",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug
-        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", manufacturer: "_TZ3000_3ooaz3ng", model: "TS0121",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug        
+        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", model: "TS0121",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug
     }
 
     tiles(scale: 2){
@@ -142,7 +141,7 @@ def configure() {
     // this device will send instantaneous demand and current summation delivered every 1 minute
     sendEvent(name: "checkInterval", value: 2 * 60 + 10 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID])
     log.debug "Configuring Reporting"
-    if (device.getDataValue("model") == "TS0121") {
+    if (isPolling) {
         unschedule()
         runEvery1Minute(powerRefresh)
     }    
@@ -155,4 +154,8 @@ def configure() {
 def powerRefresh() {
     def cmds = zigbee.electricMeasurementPowerRefresh()
     cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
+}
+
+private getIsPolling() {
+    return (device.getDataValue("model") == "TS0121" && device.getDataValue("manufacturer") != "_TZ3000_8nkb7mof")
 }
