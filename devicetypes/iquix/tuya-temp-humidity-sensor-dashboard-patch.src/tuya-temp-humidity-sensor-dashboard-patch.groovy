@@ -95,6 +95,8 @@ def parse(String description) {
 			} else {
 				log.warn "TEMP REPORTING CONFIG FAILED- error code: ${descMap.data[0]}"
 			}
+		} else if (device.getDataValue("manufacturer") == "LUMI" && description?.startsWith('catchall:')) {
+			map = lumi_catchall(description)
 		}
 	} else if (map.name == "temperature") {
 		if (tempOffset) {
@@ -109,10 +111,8 @@ def parse(String description) {
 		if (humidityOffset) {
 			map.value = map.value + humidityOffset as float
 		}
-		
 	}
-
-	log.debug "Parse returned $map"
+	//log.debug "Parse returned $map"
 	if (map) {
 		sendEvent(map)
 		if (map?.name == "temperature" || map?.name == "humidity") {
@@ -120,7 +120,6 @@ def parse(String description) {
 		}
 	}
 }
-
 
 def getBatteryPercentageResult(rawValue) {
 	log.debug "Battery Percentage rawValue = ${rawValue} -> ${rawValue / 2}%"
@@ -132,7 +131,6 @@ def getBatteryPercentageResult(rawValue) {
 		result.value = Math.round(rawValue / 2)
 		result.descriptionText = "${device.displayName} battery was ${result.value}%"
 	}
-
 	return result
 }
 
@@ -155,9 +153,28 @@ private Map getBatteryResult(rawValue) {
 		result.name = 'battery'
 
 	}
-
 	return result
 }
+
+def lumi_catchall(String description) {
+	def catchall = zigbee.parse(description)
+	if (catchall.clusterId == 0x0000) {
+		def length = catchall.data.size()
+		if ((catchall.data.get(0) == 0x01 || catchall.data.get(0) == 0x02 ) && ( catchall.data.get(1) == 0xFF)) {
+			for (int i = 4; i < (length - 3); i++) {
+				if (catchall.data.get(i) == 0x21) {
+					def rawvolts = ((catchall.data.get(i+2) << 8) + catchall.data.get(i+1)) / 1000
+					def minvolts = 2.7
+					def maxvolts = 3.2
+					def percent = Math.min(100, Math.round(100.0 * (rawvolts - minvolts) / (maxvolts - minvolts))) 
+					return [ name: 'battery', value: percent, unit: '%']
+				}
+			}
+		}
+	}
+	return [:]
+}
+
 
 /**
  * PING is used by Device-Watch in attempt to reach the Device
