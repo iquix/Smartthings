@@ -1,5 +1,5 @@
 /**
- *  Tuya Thermostat (v.0.1.2.1)
+ *  Tuya Thermostat (v.0.1.2.2)
  *    Copyright 2020 Jaewon Park
  *
  *    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,7 @@
 import groovy.json.JsonOutput
 
 metadata {
-    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.thermostat", mnmn: "SmartThingsCommunity", vid: "2d24169b-9cc3-394a-9bb6-21e523045a8e") {
+    definition(name: "Tuya Thermostat", namespace: "iquix", author: "iquix", ocfDeviceType: "oic.d.thermostat", mnmn: "SmartThingsCommunity", vid: "94d9a579-a027-31d5-b534-9da3833b1ffa") {
         capability "Thermostat"
         capability "Thermostat Mode"
         capability "Thermostat Heating Setpoint"
@@ -190,7 +190,7 @@ def installed() {
     sendEvent(name: "thermostatMode", value: "off", displayed: false)
     sendEvent(name: "thermostatOperatingState", value: "idle", displayed: false)
     sendEvent(name: "heatingSetpoint", value: 0, unit: "C", displayed: false)
-    sendEvent(name: "coolingSetpoint", value: 0, unit: "C", displayed: false)
+    //sendEvent(name: "coolingSetpoint", value: 0, unit: "C", displayed: false)
     sendEvent(name: "temperature", value: 0, unit: "C", displayed: false)
     state.mode = ""
     state.setpoint = 0
