@@ -112,7 +112,7 @@ def off() {
         cmds += zigbee.command(zigbee.ONOFF_CLUSTER, 0x00, "", [destEndpoint: 0x02])
     }
     if (isPolling) {
-        cmds += ["delay 1000"] + zigbee.electricMeasurementPowerRefresh()
+        cmds += ["delay 1500"] + zigbee.electricMeasurementPowerRefresh()
     }
     return cmds
 }
@@ -124,7 +124,7 @@ def on() {
         cmds += zigbee.command(zigbee.ONOFF_CLUSTER, 0x01, "", [destEndpoint: 0x02])
     }
     if (isPolling) {
-        cmds += ["delay 1000"] + zigbee.electricMeasurementPowerRefresh()
+        cmds += ["delay 1500"] + zigbee.electricMeasurementPowerRefresh()
     }
     return cmds
 }
