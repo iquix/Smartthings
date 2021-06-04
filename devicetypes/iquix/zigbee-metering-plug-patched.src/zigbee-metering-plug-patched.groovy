@@ -157,7 +157,7 @@ def configure() {
     }
     if ((device.getDataValue("manufacturer") == "LDS") || (device.getDataValue("manufacturer") == "REXENSE") || (device.getDataValue("manufacturer") == "frient A/S"))  {
         device.updateDataValue("divisor", "1")
-    }
+    }    
     if (isPolling) {
         unschedule()
         runEvery1Minute(powerRefresh)
