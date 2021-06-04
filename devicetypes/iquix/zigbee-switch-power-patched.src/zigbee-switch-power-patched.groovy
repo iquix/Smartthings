@@ -98,7 +98,10 @@ def configure() {
 	if ((device.getDataValue("manufacturer") == "Develco Products A/S") || (device.getDataValue("manufacturer") == "Aurora"))  {
 		device.updateDataValue("divisor", "1")
 	}
-	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS")) {
+	if ((device.getDataValue("manufacturer") == "SALUS") || (device.getDataValue("manufacturer") == "DAWON_DNS") || (device.getDataValue("model") == "TS0121") || (device.getDataValue("model") == "TS011F"))  {
+		device.updateDataValue("divisor", "1")
+	}
+	if ((device.getDataValue("manufacturer") == "LDS") || (device.getDataValue("manufacturer") == "REXENSE") || (device.getDataValue("manufacturer") == "frient A/S"))  {
 		device.updateDataValue("divisor", "1")
 	}
 	return configureHealthCheck()
