@@ -25,7 +25,7 @@ metadata {
 		//attribute "power", "number"
 	}
 
-	fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "에어컨" // fingerprint of Heiman 16A plug
+	//fingerprint profileId: "0104", deviceId: "0051", inClusters: "0000 0003 0004 0006 0009 0702 0B04", outClusters: "0000 0003 0004 0006 0009 0702 0B04", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "에어컨" // fingerprint of Heiman 16A plug
 
 	preferences {
 		input name: "TasmotaIP", title:"local IP address of Tasmota IR", type: "string", required: true
