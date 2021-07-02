@@ -249,6 +249,7 @@ def installed() {
 	state.preferences = null
 	state.default_fix_percent = null
 	state.autolimit = null
+    state.run_autolimit = true
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	sendEvent(name: "windowShade", value: "unknown", displayed: false)
 	sendEvent(name: "level", value: 50, displayed: false)
@@ -300,9 +301,10 @@ private setDirection() {
 def directionPostProcess() {
 	log.info "directionPostProcess()"
 	def cmds
-	if (isAutoLimitSupported) {
+	if (isAutoLimitSupported && state.run_autolimit) {
 		log.debug "*** this device is capable of automatic limit settings. starting automatic limit settings... ***"
 		state.autolimit = true
+        state.run_autolimit = false
 		cmds = sendTuyaCommand("06", DP_TYPE_BOOL, "01")
 	} else {
 		cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
