@@ -83,15 +83,19 @@ def parse(String description) {
 
 def off() {
 	state.lastLevel = device.currentValue("level")
-	zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, MOVE_LEVEL_ONOFF_COMMAND, "00", "4000") + ["delay 7400"] + zigbee.onOffRefresh()
+	if (state.lastLevel == 1) {
+		zigbee.off() + ["delay 1500"] + zigbee.onOffRefresh()
+	} else {
+		zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, MOVE_LEVEL_ONOFF_COMMAND, "00", "4000") + ["delay 7400"] + zigbee.onOffRefresh()
+	}
 }
 
 def on() {
-	setLevel(state.lastLevel ?: 100)
+	zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, MOVE_LEVEL_ONOFF_COMMAND, zigbee.convertToHexString(((state.lastLevel?:100)/100*0xff) as Integer, 2), "1E00") + ["delay 1500"] + zigbee.onOffRefresh() + ["delay 2500"] + zigbee.levelRefresh()
 }
 
 def setLevel(value, rate = null) {
-	zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, MOVE_LEVEL_ONOFF_COMMAND, zigbee.convertToHexString((value/100*0xff) as Integer, 2), "1800") + ["delay 3400"] + zigbee.onOffRefresh() + zigbee.levelRefresh()
+	zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, MOVE_LEVEL_ONOFF_COMMAND, zigbee.convertToHexString((value/100*0xff) as Integer, 2), "1E00") + ["delay 4000"] + zigbee.onOffRefresh() + zigbee.levelRefresh()
 }
 
 def refresh() {
@@ -147,8 +151,8 @@ def setColorTemperature(value) {
 	def tempInMired = Math.round(1000000 / value)
 	def finalHex = zigbee.swapEndianHex(zigbee.convertToHexString(tempInMired, 4))
 
-	zigbee.command(COLOR_CONTROL_CLUSTER, MOVE_TO_COLOR_TEMPERATURE_COMMAND, finalHex, "1800") + 
-	["delay 3400"] + zigbee.colorTemperatureRefresh()
+	zigbee.command(COLOR_CONTROL_CLUSTER, MOVE_TO_COLOR_TEMPERATURE_COMMAND, finalHex, "1E00") + 
+	["delay 4000"] + zigbee.colorTemperatureRefresh()
 }
 
 //Naming based on the wiki article here: http://en.wikipedia.org/wiki/Color_temperature
