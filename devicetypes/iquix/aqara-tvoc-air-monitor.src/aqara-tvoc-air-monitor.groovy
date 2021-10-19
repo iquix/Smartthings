@@ -1,5 +1,5 @@
 /**
- *  Aqara TVOC Air Monitor (Temp/Humidity/TVOC Sensor)
+ *  Aqara TVOC Air Monitor (Temp/Humidity/TVOC Sensor) (v.0.1.1.0)
  *
  *  Copyright 2014,2021 SmartThings / iquix
  *
@@ -151,35 +151,31 @@ private Map getBatteryResult(rawValue) {
 }
 
 private Map getAnalogInputResult(value) {
-    Float f = Float.intBitsToFloat(value.intValue()) * 0.001
-    createEvent(name: "tvocLevel", value: f.round(3))
+	Float f = Float.intBitsToFloat(value.intValue()) * 0.001
+	return [name: "tvocLevel", value: f.round(3)]
 }
 
 /**
  * PING is used by Device-Watch in attempt to reach the Device
  * */
 def ping() {
-	return zigbee.readAttribute(0x0001, 0x0020) // Read the Battery Level
+	return zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, 0x0020) // Read the Battery Level
 }
 
 def refresh() {
-	log.debug "refresh temperature, humidity, and battery"
+	log.debug "refresh()"
 	return zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, 0x0020)+
 			zigbee.readAttribute(zigbee.TEMPERATURE_MEASUREMENT_CLUSTER, 0x0000)+
 			zigbee.readAttribute(zigbee.RELATIVE_HUMIDITY_CLUSTER, 0x0000) +
-            zigbee.readAttribute(ANALOG_INPUT_BASIC_CLUSTER, ANALOG_INPUT_BASIC_PRESENT_VALUE_ATTRIBUTE)
-}
-
-def configure() {
-	sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
-
-	log.debug "Configuring Reporting and Bindings."
-
-	// temperature minReportTime 30 seconds, maxReportTime 5 min. Reporting interval if no activity
-	// battery minReport 30 seconds, maxReportTime 6 hrs by default
-	return refresh() +
+			zigbee.readAttribute(ANALOG_INPUT_BASIC_CLUSTER, ANALOG_INPUT_BASIC_PRESENT_VALUE_ATTRIBUTE) +
 			zigbee.configureReporting(zigbee.RELATIVE_HUMIDITY_CLUSTER, 0x0000, DataType.UINT16, 30, 300, 1*100) +
 			zigbee.configureReporting(zigbee.TEMPERATURE_MEASUREMENT_CLUSTER, 0x0000, DataType.INT16, 30, 300, 0x1) +
 			zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, 0x0020, DataType.UINT8, 30, 21600, 0x1) + 
-			zigbee.configureReporting(ANALOG_INPUT_BASIC_CLUSTER, ANALOG_INPUT_BASIC_PRESENT_VALUE_ATTRIBUTE, DataType.FLOAT4, 1, 600, 1)
+			zigbee.configureReporting(ANALOG_INPUT_BASIC_CLUSTER, ANALOG_INPUT_BASIC_PRESENT_VALUE_ATTRIBUTE, DataType.FLOAT4, 10, 3600, 5)
+}
+
+def configure() {
+	log.debug "configure()"
+	sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
+	return refresh()
 }
