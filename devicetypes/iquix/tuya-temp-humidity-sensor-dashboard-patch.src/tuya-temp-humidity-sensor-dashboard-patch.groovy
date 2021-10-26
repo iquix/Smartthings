@@ -1,5 +1,5 @@
 /**
- *  Tuya Temp/Humidity Sensor (Dashboard Patch)
+ *  Tuya Temp/Humidity Sensor (Dashboard Patch) ver 0.1.1
  *
  *  Copyright 2014,2021 SmartThings / iquix
  *
@@ -185,6 +185,7 @@ def ping() {
 
 def installed() {
 	textString = ""
+	return configure()
 }
 
 def refresh() {
