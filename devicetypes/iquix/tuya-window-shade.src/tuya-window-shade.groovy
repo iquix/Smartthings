@@ -1,6 +1,6 @@
 /**
- *  Tuya Window Shade (v.0.5.0.2)
- *	Copyright 2020 Jaewon Park (iquix)
+ *	Tuya Window Shade (v.0.5.2.0)
+ *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *	in compliance with the License. You may obtain a copy of the License at:
@@ -25,8 +25,9 @@ metadata {
 		command "pause"
 
 		fingerprint profileId: "0104", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_xaabybja", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested)
 		fingerprint profileId: "0104", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
-		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind (Not tested)
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5sbebbzs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
@@ -35,8 +36,9 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nueqqe6k", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Smart Motorized Chain Roller *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
+		fingerprint profileId: "0104", manufacturer: "_TYST11_xaabybja", model: "aabybja", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested)
 		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
-		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind New (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind (Not tested)
 		fingerprint profileId: "0104", manufacturer: "_TYST11_5sbebbzs", model: "sbebbzs", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery
 		fingerprint profileId: "0104", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
@@ -97,7 +99,7 @@ private getDP_TYPE_ENUM() { "04" }
 // Parse incoming device messages to generate events
 def parse(String description) {
 	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
-		Map descMap = zigbee.parseDescriptionAsMap(description)		
+		Map descMap = zigbee.parseDescriptionAsMap(description)
 		log.debug descMap
 		if (descMap?.clusterInt==CLUSTER_TUYA) {
 			if ( descMap?.command == "01" || descMap?.command == "02" ) {
@@ -114,7 +116,7 @@ def parse(String description) {
 								log.debug "moving from position 100 : must be closing"
 								levelEventMoving(0)
 							}
-						} else if (productId == "qcqqjpb") {
+						} else if (supportDp1State()) {
 							return
 						} else {
 							if (directionVal(fncmd) == 0) {
@@ -127,33 +129,27 @@ def parse(String description) {
 						}
 						break
 					case 0x01: // 0x01: Control -- Opening/closing/stopped
-						def stat = cmdVal(fncmd)
-						state.lastdp1 = stat
-						if (stat == 0) {
-							log.debug "opening"
-							levelEventMoving(100)
-						} else if (stat == 2) {
-							log.debug "closing"
-							levelEventMoving(0)
-						} else if (stat == 1) {
+						def statVal = cmdVal(fncmd)
+						if (statVal == 1) {
 							log.debug "stopped"
+							state.moving = false
+							return
+						}
+						if (statVal == 0 || statVal == 2) {
+							state.moving = levelEventMoving((statVal==0) ? 100 : 0)
 						}
 						break
 					case 0x02: // 0x02: Percent control -- Started moving to position (triggered from Zigbee)
-						if (!supportRealTimePosition()) {
+						if (!isDp2PositionDevices()) {
 							def pos = levelVal(fncmd)
 							log.debug "moving to position: "+pos
 							levelEventMoving(pos)
 							break
 						}
-						// supportRealTimePosition() devices send current position packet with dp 2, so it will be processed with the following code.
+						// isDp2PositionDevices() devices send current position packet with dp 2, so it will be processed with the following code.
 					case 0x03: // 0x03: Percent state -- Arrived at position
 						def pos = levelVal(fncmd)
-						if (productId == "qcqqjpb" && (state.lastdp1 == 0 || state.lastdp1 == 2)) {
-							log.debug "moving from position: "+pos
-							return
-						}
-						log.debug "arrived at position: "+pos
+						log.debug "position: "+pos
 						levelEventArrived(pos)
 						break
 					case 0x05: // 0x05: Direction state
@@ -180,29 +176,32 @@ private levelEventMoving(currentLevel) {
 	} else {
 		if (lastLevel < currentLevel) {
 			sendEvent(name:"windowShade", value: "opening", displayed: true)
+			return true
 		} else if (lastLevel > currentLevel) {
 			sendEvent(name:"windowShade", value: "closing", displayed: true)
+			return true
 		}
-		state.levelRestoreValue = lastLevel
-		runIn(90, "levelRestore", [overwrite:true])
 	}
+	return false
 }
 
 private levelEventArrived(level) {
-	state.levelRestoreValue = null
+	def windowShadeVal
 	if (level == 0) {
-		sendEvent(name: "windowShade", value: "closed", displayed: true)
+		windowShadeVal = "closed"
 	} else if (level == 100) {
-		sendEvent(name: "windowShade", value: "open", displayed: true)
+		windowShadeVal = "open"
 	} else if (level > 0 && level < 100) {
-		sendEvent(name: "windowShade", value: "partially open", displayed: true)
+		windowShadeVal = "partially open"
 	} else {
 		log.debug "Position value error (${level}) : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
-		sendEvent(name: "windowShade", value: "unknown", displayed: true)
-		sendEvent(name: "level", value: 50, displayed: true)
-		return
+		level = 50
+        windowShadeVal = "unknown"
 	}
 	sendEvent(name: "level", value: (level), displayed: true)
+	if (!(supportDp1State() && state.moving)) {
+		sendEvent(name: "windowShade", value: (windowShadeVal), displayed: true)
+	}
 }
 
 def close() {
@@ -235,7 +234,7 @@ def setLevel(data, rate = null) {
 	if (currentLevel == data) {
 		sendEvent(name: "level", value: currentLevel, displayed: true)
 	}
-	runIn(10, "levelSet", [overwrite:true])
+	runIn(10, "setEvent", [overwrite:true])
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
@@ -249,7 +248,7 @@ def installed() {
 	state.preferences = null
 	state.default_fix_percent = null
 	state.autolimit = null
-    state.run_autolimit = true
+	state.run_autolimit = true
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	sendEvent(name: "windowShade", value: "unknown", displayed: false)
 	sendEvent(name: "level", value: 50, displayed: false)
@@ -277,18 +276,8 @@ def updated() {
 	return
 }
 
-def levelSet() {
-	if (state.levelRestoreValue != null) {
-		log.debug "Position data not received yet. Setting position to previous position (${state.levelRestoreValue}) to prevent app error."
-		sendEvent(name: "level", value: state.levelRestoreValue, displayed: false)
-	}
-}
-
-def levelRestore() {
-	if (state.levelRestoreValue != null) {
-		log.debug "Position data finally not received until timeout. Restoring previous state and position(${state.levelRestoreValue})."
-		levelEventArrived(state.levelRestoreValue)
-	}
+def setEvent() {
+	sendEvent(name: "level", value: device.currentValue("level"), displayed: false)
 }
 
 private setDirection() {
@@ -304,17 +293,17 @@ def directionPostProcess() {
 	if (isAutoLimitSupported && state.run_autolimit) {
 		log.debug "*** this device is capable of automatic limit settings. starting automatic limit settings... ***"
 		state.autolimit = true
-        state.run_autolimit = false
+		state.run_autolimit = false
 		cmds = sendTuyaCommand("06", DP_TYPE_BOOL, "01")
 	} else {
 		cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
 	}
-   	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
+	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
 }
 
 def moveTo50() {
 	log.info "moveTo50()"
-  	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
+	def cmds = sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(50, 8))
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }	
 }
 
@@ -338,7 +327,6 @@ private levelVal(n) {
 	} else {
 		return (int)(((fixpercent == "Fix percent") ^ state.default_fix_percent) ? 100 - pct : pct)	
 	}
-	
 }
 
 private cmdVal(c) {
@@ -352,7 +340,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs", "aabybja"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
@@ -378,6 +366,10 @@ private getIsAutoLimitSupported() {
 	return (productId == "dtjuw7u")
 }
 
-private supportRealTimePosition() {
+private isDp2PositionDevices() {
 	return (productId == "ueqqe6k" || productId == "sbebbzs")
+}
+
+private supportDp1State() {
+	return (productId == "qcqqjpb" || productId == "aabybja")
 }
