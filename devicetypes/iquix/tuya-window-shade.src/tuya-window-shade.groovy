@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.5.3.1)
+ *	Tuya Window Shade (v.0.5.3.2)
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -143,9 +143,7 @@ def parse(String description) {
 						if (!isDp2PositionDevices()) {
 							def pos = levelVal(fncmd)
 							log.debug "moving to position: "+pos
-							if (productId == "ogaemzt") {  // 285mm nogaemzt specific packet
-								state.levelCmdVal = currentLevel
-							}
+							state.levelCmdVal = pos	// for 285mm nogaemzt specific packet
 							levelEventMoving(pos)
 							break
 						}
