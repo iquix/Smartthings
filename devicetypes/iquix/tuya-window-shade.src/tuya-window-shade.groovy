@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.5.3.2)
+ *	Tuya Window Shade (v.0.6.0.0)
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -21,6 +21,7 @@ metadata {
 		capability "Window Shade"
 		capability "Window Shade Preset"
 		capability "Switch Level"
+		capability "Window Shade Level"
 
 		command "pause"
 
@@ -205,7 +206,8 @@ private levelEventArrived(level) {
 		level = 50
         windowShadeVal = "unknown"
 	}
-	sendEvent(name: "level", value: (level), displayed: true)
+	sendEvent(name: "level", value: (level), displayed: false)
+	sendEvent(name: "shadeLevel", value: (level), displayed: true)
 	if (!(supportDp1State() && state.moving)) {
 		sendEvent(name: "windowShade", value: (windowShadeVal), displayed: true)
 	}
@@ -235,16 +237,21 @@ def pause() {
 	sendTuyaCommand("01", DP_TYPE_ENUM, "01")
 }
 
-def setLevel(data, rate = null) {
-	log.info "setLevel(${data})"
+def setShadeLevel(data) {
+	log.info "setShadeLevel(${data})"
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == data) {
-		sendEvent(name: "level", value: currentLevel, displayed: true)
+		sendEvent(name: "level", value: currentLevel, displayed: false)
+		sendEvent(name: "shadeLevel", value: currentLevel, displayed: true)        
 	}
 	runIn(10, "setEvent", [overwrite:true])
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
 }
 
+def setLevel(data, rate = null) {
+	log.info "setLevel(${data})"
+	setShadeLevel(data)
+}
 
 def presetPosition() {
 	setLevel(preset ?: 50)
@@ -259,6 +266,7 @@ def installed() {
 	sendEvent(name: "supportedWindowShadeCommands", value: JsonOutput.toJson(["open", "close", "pause"]), displayed: false)
 	sendEvent(name: "windowShade", value: "unknown", displayed: false)
 	sendEvent(name: "level", value: 50, displayed: false)
+	sendEvent(name: "shadeLevel", value: 50, displayed: false)
 	return
 } 
 
@@ -285,6 +293,7 @@ def updated() {
 
 def setEvent() {
 	sendEvent(name: "level", value: device.currentValue("level"), displayed: false)
+	sendEvent(name: "shadeLevel", value: device.currentValue("level"), displayed: false)
 }
 
 private setDirection() {
