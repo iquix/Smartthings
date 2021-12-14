@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.6.0.0)
+ *	Tuya Window Shade (v.0.6.0.1)
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -36,6 +36,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_bqcqqjpb", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750L *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nueqqe6k", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Smart Motorized Chain Roller *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_cf1sl3tj", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Smart Curtainbot *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_cowvfni3", model: "owvfni3", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_xaabybja", model: "aabybja", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested)
 		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
@@ -208,7 +209,11 @@ private levelEventArrived(level) {
 	}
 	sendEvent(name: "level", value: (level), displayed: false)
 	sendEvent(name: "shadeLevel", value: (level), displayed: true)
-	if (!(supportDp1State() && state.moving)) {
+	if (supportDp1State() && state.moving) {
+		return
+	} else if (doesReportStartPos() && state.moving) {
+		state.moving = false
+	} else {
 		sendEvent(name: "windowShade", value: (windowShadeVal), displayed: true)
 	}
 }
@@ -388,4 +393,8 @@ private isDp2PositionDevices() {
 
 private supportDp1State() {
 	return (productId == "qcqqjpb" || productId == "aabybja")
+}
+
+private doesReportStartPos() {
+	return (productId == "f1sl3tj")
 }
