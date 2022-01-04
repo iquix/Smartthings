@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.6.0.1)
+ *	Tuya Window Shade (v.0.6.1.0-beta)
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fdtjuw7u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
+		fingerprint profileId: "0104", manufacturer: "_TZE200_r0jdjrvi", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_bqcqqjpb", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750L *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_zpzndjez", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // DS82 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nueqqe6k", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Smart Motorized Chain Roller *
@@ -145,7 +146,7 @@ def parse(String description) {
 						if (!isDp2PositionDevices()) {
 							def pos = levelVal(fncmd)
 							log.debug "moving to position: "+pos
-							state.levelCmdVal = pos	// for 285mm nogaemzt specific packet
+							state.levelCmdVal = pos	// for devices with dp=6 destination devices
 							levelEventMoving(pos)
 							break
 						}
@@ -158,8 +159,8 @@ def parse(String description) {
 					case 0x05: // 0x05: Direction state
 						log.debug "direction state of the motor is "+ (fncmd ? "reverse" : "forward")
 						break
-					case 0x06: // 0x06: Arrived at destination (285mm nogaemzt specific packet)
-						if (fncmd == 0 && productId == "ogaemzt" && state.levelCmdVal != null) {
+					case 0x06: // 0x06: Arrived at destination (with fncmd==0)
+						if (fncmd == 0 && state.levelCmdVal != null) {
 							levelEventArrived(state.levelCmdVal)
 							state.levelCmdVal = null
 						}
@@ -205,7 +206,7 @@ private levelEventArrived(level) {
 	} else {
 		log.debug "Position value error (${level}) : Please remove the device from Smartthings, and setup limit of the curtain before pairing."
 		level = 50
-        windowShadeVal = "unknown"
+		windowShadeVal = "unknown"
 	}
 	sendEvent(name: "level", value: (level), displayed: false)
 	sendEvent(name: "shadeLevel", value: (level), displayed: true)
@@ -247,7 +248,7 @@ def setShadeLevel(data) {
 	def currentLevel = device.currentValue("level")
 	if (currentLevel == data) {
 		sendEvent(name: "level", value: currentLevel, displayed: false)
-		sendEvent(name: "shadeLevel", value: currentLevel, displayed: true)        
+		sendEvent(name: "shadeLevel", value: currentLevel, displayed: true)
 	}
 	runIn(10, "setEvent", [overwrite:true])
 	sendTuyaCommand("02", DP_TYPE_VALUE, zigbee.convertToHexString(levelVal(data), 8))
