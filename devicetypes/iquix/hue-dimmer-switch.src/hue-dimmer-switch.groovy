@@ -1,7 +1,7 @@
 /**
- *  Hue Dimmer Switch ver 0.1.8
+ *  Hue Dimmer Switch ver 0.2.0
  *
- *  Copyright 2020 Jaewon Park
+ *  Copyright 2020~2022 Jaewon Park
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -17,7 +17,7 @@ import groovy.json.JsonOutput
 import physicalgraph.zigbee.zcl.DataType
 
 metadata {
-	definition (name: "Hue Dimmer Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "x.com.st.d.remotecontroller", mcdSync: true, mnmn: "SmartThings", vid: "generic-4-button") {
+	definition (name: "Hue Dimmer Switch", namespace: "iquix", author: "iquix", ocfDeviceType: "x.com.st.d.remotecontroller", mcdSync: true, mnmn: "SmartThings") {
 		capability "Configuration"
 		capability "Battery"
 		capability "Refresh"
@@ -29,12 +29,14 @@ metadata {
 		attribute "lastButtonState", "string"
 		attribute "lastButtonName", "string"
 
-		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch"
-		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch"
-		fingerprint profileId: "0104", endpointId: "01", application:"02", outClusters: "0019, 0000, 0003, 0004, 0006, 0008, 0005, 1000", inClusters: "0000, 0001, 0003, FC00, 1000", manufacturer: "Signify Netherlands B.V.", model: "RWL022", deviceJoinName: "Hue Dimmer Switch"
+		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL020", deviceJoinName: "Hue Dimmer Switch", vid: "generic-4-button"
+		fingerprint profileId: "0104", endpointId: "02", application:"02", outClusters: "0019", inClusters: "0000,0001,0003,000F,FC00", manufacturer: "Philips", model: "RWL021", deviceJoinName: "Hue Dimmer Switch", vid: "generic-4-button"
+		fingerprint profileId: "0104", endpointId: "01", application:"02", outClusters: "0019, 0000, 0003, 0004, 0006, 0008, 0005, 1000", inClusters: "0000, 0001, 0003, FC00, 1000", manufacturer: "Signify Netherlands B.V.", model: "RWL022", deviceJoinName: "Hue Dimmer Switch", vid: "generic-4-button"
+		fingerprint profileId: "0104", endpointId: "01", outClusters: "0003, 0004, 0006, 0008, 0019", inClusters: "0000, 0001, 0003, FC00", manufacturer: "Signify Netherlands B.V.", model: "RDM001", deviceJoinName: "Hue Wall Switch Module", vid: "generic-2-button"
 	}
 	preferences {
 		input name: "holdTimingValue", type: "enum", title: "Held Event Firing Timing", options:["0": "When Holding Starts", "1": "When Holding Ends", "2": "Fire Multiple Held Events while Holding"], defaultValue: "0"
+		input name: "swTypeValue", type: "enum", title: "[Wall Switch Module Only] Switch Type", options: ["0": "Single Rocker", "1": "Single Push Button", "2": "Dual Rocker", "3": "Dual Push Button"], displayDuringSetup: false, defaultValue: "3"
 	}
 	tiles {
 		multiAttributeTile(name: "button", type: "generic", width: 6, height: 4, canChangeIcon: true) {
@@ -65,10 +67,10 @@ metadata {
 
 private getBATTERY_MEASURE_VALUE() { 0x0020 }
 
-
 private getButtonLabel(buttonNum) {
 	def hueDimmerNames = ["On","Up","Down","Off"]
-	return hueDimmerNames[buttonNum - 1]
+	def hueWallSwitchNames = ["Switch1","Switch2"]
+	return (device.getDataValue("model")=="RDM001") ? hueWallSwitchNames[buttonNum - 1] : hueDimmerNames[buttonNum - 1]
 }
 
 
@@ -83,15 +85,6 @@ def parse(String description) {
    	if (description?.startsWith('catchall:') || description?.startsWith('read attr -')) {
 		result = parseMessage(description)
 	}
-	/*else if (description?.startsWith('enroll request')) {
-		def cmds = zigbee.enrollResponse()
-		result = cmds?.collect { new physicalgraph.device.HubAction(it) }
-	}
-	if (now() - state.battRefresh > 12 * 60 * 60 * 1000) { // send battery query command in at least 12hrs time gap
-		state.battRefresh = now()
-		def cmds = refresh()
-		cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) } 
-	}*/
 	sendEvent(name: "lastCheckin", value: (new Date().format("MM-dd HH:mm:ss ", location.timeZone)), displayed: false)	
 	return result
 }
@@ -187,9 +180,12 @@ private setReleased() {
 
 
 def refresh() {
-	def ep = (device.getDataValue("model")=="RWL022") ? 0x01 : 0x02
+	def ep = (device.getDataValue("model")=="RWL022" || device.getDataValue("model")=="RDM001") ? 0x01 : 0x02
 	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint: ep]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint: ep])
 	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint: ep])
+	if (device.getDataValue("model")=="RDM001") {
+		refreshCmds += zigbee.writeAttribute(zigbee.BASIC_CLUSTER, 0x0034, DataType.ENUM8, (swTypeValue ?: "3").toInteger(), [mfgCode: 0x100b])
+	}
 	log.debug "refresh() returns " + refreshCmds
 	return refreshCmds
 }
@@ -214,13 +210,14 @@ def updated() {
 		if (!child.deviceNetworkId.startsWith(device.deviceNetworkId)) { //parent DNI has changed after rejoin
 			child.setDeviceNetworkId("${device.deviceNetworkId}:${channelNumber(child.deviceNetworkId)}")
 		}
-	}	
+	}
+	sendHubCommand(refresh().collect { new physicalgraph.device.HubAction(it) })
 }
 
 
 def installed() {
 	log.debug "installed() called"
-	def numberOfButtons = 4
+	def numberOfButtons = (device.getDataValue("model")=="RDM001") ? 2 : 4
 	createChildButtonDevices(numberOfButtons)
 	sendEvent(name: "supportedButtonValues", value: ["pushed","held"].encodeAsJson(), displayed: false)
 	sendEvent(name: "numberOfButtons", value: numberOfButtons, displayed: false)
@@ -230,7 +227,6 @@ def installed() {
 	// These devices don't report regularly so they should only go OFFLINE when Hub is OFFLINE
 	sendEvent(name: "DeviceWatch-Enroll", value: JsonOutput.toJson([protocol: "zigbee", scheme:"untracked"]), displayed: false)
 	sendEvent(name: "lastButtonState", value: "released", displayed: false)
-	//state.battRefresh = now()
 }
 
 
