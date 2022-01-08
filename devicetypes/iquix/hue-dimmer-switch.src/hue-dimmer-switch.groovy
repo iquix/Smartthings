@@ -1,5 +1,5 @@
 /**
- *  Hue Dimmer Switch ver 0.2.0
+ *  Hue Dimmer Switch ver 0.2.1
  *
  *  Copyright 2020~2022 Jaewon Park
  *
@@ -35,8 +35,8 @@ metadata {
 		fingerprint profileId: "0104", endpointId: "01", outClusters: "0003, 0004, 0006, 0008, 0019", inClusters: "0000, 0001, 0003, FC00", manufacturer: "Signify Netherlands B.V.", model: "RDM001", deviceJoinName: "Hue Wall Switch Module", vid: "generic-2-button"
 	}
 	preferences {
-		input name: "holdTimingValue", type: "enum", title: "Held Event Firing Timing", options:["0": "When Holding Starts", "1": "When Holding Ends", "2": "Fire Multiple Held Events while Holding"], defaultValue: "0"
-		input name: "swTypeValue", type: "enum", title: "[Wall Switch Module Only] Switch Type", options: ["0": "Single Rocker", "1": "Single Push Button", "2": "Dual Rocker", "3": "Dual Push Button"], displayDuringSetup: false, defaultValue: "3"
+		input name: "holdTimingValue", type: "enum", title: "Held Event Firing Timing", options:["0": "When Holding Starts", "1": "When Holding Ends", "2": "Fire Multiple Events while Holding"], defaultValue: "0"
+		input name: "swTypeValue", type: "enum", title: "[Wall Switch Module Only] Switch Type", options: ["0": "Single Rocker", "1": "Single Push Button", "2": "Dual Rocker", "3": "Dual Push Button"], displayDuringSetup: false, defaultValue: "2"
 	}
 	tiles {
 		multiAttributeTile(name: "button", type: "generic", width: 6, height: 4, canChangeIcon: true) {
@@ -184,7 +184,7 @@ def refresh() {
 	def refreshCmds = zigbee.configureReporting(0xFC00, 0x0000, DataType.BITMAP8, 30, 30, null, [destEndpoint: ep]) + zigbee.configureReporting(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, DataType.UINT8, 7200, 7200, 0x01, [destEndpoint: ep])
 	refreshCmds += zigbee.readAttribute(zigbee.POWER_CONFIGURATION_CLUSTER, BATTERY_MEASURE_VALUE, [destEndpoint: ep])
 	if (device.getDataValue("model")=="RDM001") {
-		refreshCmds += zigbee.writeAttribute(zigbee.BASIC_CLUSTER, 0x0034, DataType.ENUM8, (swTypeValue ?: "3").toInteger(), [mfgCode: 0x100b])
+		refreshCmds += zigbee.writeAttribute(zigbee.BASIC_CLUSTER, 0x0034, DataType.ENUM8, (swTypeValue ?: "2").toInteger(), [mfgCode: 0x100b])
 	}
 	log.debug "refresh() returns " + refreshCmds
 	return refreshCmds
