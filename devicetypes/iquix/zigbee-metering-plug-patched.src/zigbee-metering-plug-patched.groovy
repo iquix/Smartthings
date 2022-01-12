@@ -1,5 +1,5 @@
 /**
- *  Copyright 2019-2021 SmartThings/iquix
+ *  Copyright 2019-2022 SmartThings/iquix
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -27,6 +27,10 @@ metadata {
         fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", model: "TS0121",  deviceJoinName: "Tuya Outlet" // Tuya Smart Plug
         fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04, E000, E001", outClusters: "0019, 000A", model: "TS011F",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug (with real time power reporting)
         fingerprint profileId: "0104", inClusters: "0003, 0004, 0005, 0006, 0702, 0B04, E000, E001", outClusters: "0019, 000A", model: "TS011F",  deviceJoinName: "Tuya Outlet" // Tuya Smart Plug
+    }
+
+    preferences {
+        input "powerPollingValue", "enum", title: "Power Polling Preference", options: ["0": "Automatic", "1": "Force Enable Power Polling", "2": "Force Disable Power Polling"], defaultValue: "0", required: false, displayDuringSetup: false
     }
 
     tiles(scale: 2){
@@ -145,8 +149,20 @@ def refresh() {
         zigbee.readAttribute(zigbee.SIMPLE_METERING_CLUSTER, ATTRIBUTE_READING_INFO_SET)
 }
 
+def installed() {
+    log.debug "installed()"
+    return configure()
+}
+
+def updated() {
+    if (powerPolling != state.prevPowerPolling) {
+        state.prevPowerPolling = powerPolling
+        setPolling()
+    }
+}
+
 def configure() {
-    log.debug "in configure()"
+    log.debug "configure()"
     // this device will send instantaneous demand and current summation delivered every 1 minute
     sendEvent(name: "checkInterval", value: 2 * 60 + 10 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID])
 
@@ -159,10 +175,6 @@ def configure() {
     if ((device.getDataValue("manufacturer") == "LDS") || (device.getDataValue("manufacturer") == "REXENSE") || (device.getDataValue("manufacturer") == "frient A/S"))  {
         device.updateDataValue("divisor", "1")
     }
-    if (isPolling) {
-        unschedule()
-        runEvery1Minute(powerRefresh)
-    }    
     return refresh() +
         zigbee.onOffConfig() +
         zigbee.configureReporting(zigbee.SIMPLE_METERING_CLUSTER, ATTRIBUTE_READING_INFO_SET, DataType.UINT48, 1, 600, 1) +
@@ -174,6 +186,24 @@ def powerRefresh() {
     cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
 }
 
+private setPolling() {
+    unschedule()
+    if (isPolling) {
+    	log.debug "Scheduling power polling every 1 minute."
+        runEvery1Minute(powerRefresh)
+    } else {
+        log.debug "Power polling disabled. Power will be reported only if the plug supports real time power reporting."
+    }
+}
+
 private getIsPolling() {
-    return (device.getDataValue("model") == "TS0121" && device.getDataValue("manufacturer") != "_TZ3000_8nkb7mof") || device.getDataValue("manufacturer") == "_TZ3000_w0qqde0g"
+    def pollingDevices = ["_TZ3000_w0qqde0g", "_TZ3000_gjnozsaz"]
+    def pushTS0121Devices = ["_TZ3000_8nkb7mof"]
+    def manufacturer = device.getDataValue("manufacturer")
+    def model = device.getDataValue("model")
+    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingDevices.findIndexOf{ it == manufacturer } != -1) || powerPolling == "1")
+}
+
+private getPowerPolling() {
+	powerPollingValue ?: "0"
 }
