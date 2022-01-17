@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.11
+ *  Power Trigger Switch 0.3.12
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,8 @@ metadata {
 		input name: "offThreshold", title:"Off Threshold Power (W)", type: "number", required: true, defaultValue: 1, range: "1..9999"
 		input name: "offDuration", title:"Off Threshold Duration (sec)", type: "number", required: true, defaultValue: 5, range: "0..9999"
 		input name: "eventOptionValue", type: "enum", title: "(Optional) When to fire events that are triggered by On/Off commands?", options:["0": "Only for state changes (Default)" , "1": "Always fire events for every command"], defaultValue: "0"
+		input name: "forcePlugOnValue", type: "enum", title: "(Optional) Always turn on the plug", options:["0": "Automatically turn on the plug when it turns off (Default)" , "1": "Allow the plug to be turned off"], defaultValue: "0"
+		input name: "powerPollingValue", type: "enum", title: "(Optional) Power Polling Preference", options: ["0": "Automatic", "1": "Force Enable Power Polling", "2": "Force Disable Power Polling"], defaultValue: "0"
 	}
 
 	tiles(scale: 2) {
@@ -221,9 +223,12 @@ def powerRefresh() {
 }
 
 private getIsPolling() {
-	return (device.getDataValue("model") == "TS0121" && device.getDataValue("manufacturer") != "_TZ3000_8nkb7mof")
+    def pollingDevices = ["_TZ3000_w0qqde0g", "_TZ3000_gjnozsaz"]
+    def pushTS0121Devices = ["_TZ3000_8nkb7mof"]
+    def manufacturer = device.getDataValue("manufacturer")
+    def model = device.getDataValue("model")
+    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingDevices.findIndexOf{ it == manufacturer } != -1) || powerPolling == "1")
 }
 
-private getEventOption() {
-	return eventOptionValue ?: "0"
-}
+private getEventOption() { eventOptionValue ?: "0" }
+private getForcePlugOn() { forcePlugOnValue ?: "0" }
