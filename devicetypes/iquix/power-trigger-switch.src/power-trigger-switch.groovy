@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.12
+ *  Power Trigger Switch 0.3.13
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -177,8 +177,11 @@ def configure() {
 		device.updateDataValue("divisor", "1")
 	}
 	if (isPolling) {
+		log.debug "Scheduling power polling every 1 minute."
 		unschedule()
 		runEvery1Minute(powerRefresh)
+	} else {
+		log.debug "Power polling disabled. Power will be reported only if the plug supports real time power reporting."
 	}
 	return configureHealthCheck()
 }
@@ -218,6 +221,7 @@ def turnPlugOn() {
 }
 
 def powerRefresh() {
+	log.debug "refreshing power"
 	def cmds = zigbee.electricMeasurementPowerRefresh()
 	cmds.each{ sendHubCommand(new physicalgraph.device.HubAction(it)) }
 }
@@ -232,3 +236,4 @@ private getIsPolling() {
 
 private getEventOption() { eventOptionValue ?: "0" }
 private getForcePlugOn() { forcePlugOnValue ?: "0" }
+private getPowerPolling() { powerPollingValue ?: "0" }
