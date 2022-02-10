@@ -1,6 +1,6 @@
 /**
- *	Tuya Window Shade (v.0.6.1.0-beta)
- *	Copyright 2020-2021 Jaewon Park (iquix)
+ *	Tuya Window Shade (v.0.6.1.1-alpha)
+ *	Copyright 2020-2022 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *	in compliance with the License. You may obtain a copy of the License at:
@@ -27,6 +27,7 @@ metadata {
 
 		fingerprint profileId: "0104", manufacturer: "_TZE200_cowvfni3", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_xaabybja", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested)
+		fingerprint profileId: "0104", manufacturer: "_TZE200_rmymn92d", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested) * 
 		fingerprint profileId: "0104", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind (Not tested)
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5sbebbzs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery *
@@ -362,7 +363,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs", "aabybja"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs", "aabybja", "mymn92d"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
@@ -393,9 +394,9 @@ private isDp2PositionDevices() {
 }
 
 private supportDp1State() {
-	return (productId == "qcqqjpb" || productId == "aabybja")
+	return (productId == "qcqqjpb" || productId == "aabybja" || productId == "mymn92d")
 }
 
 private doesReportStartPos() {
-	return (productId == "f1sl3tj")
+	return (productId == "f1sl3tj" || productId == "mymn92d")
 }
