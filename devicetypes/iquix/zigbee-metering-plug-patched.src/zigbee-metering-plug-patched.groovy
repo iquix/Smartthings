@@ -25,7 +25,7 @@ metadata {
         capability "Configuration"
 
         fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04", outClusters: "0019, 000A", model: "TS0121",  deviceJoinName: "Tuya Outlet" // Tuya Smart Plug
-        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04, E000, E001", outClusters: "0019, 000A", model: "TS011F",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug (with real time power reporting)
+        fingerprint profileId: "0104", inClusters: "0000, 0004, 0005, 0006, 0702, 0B04, E000, E001", outClusters: "0019, 000A", model: "TS011F",  deviceJoinName: "Tuya Outlet" //Tuya Smart Plug
         fingerprint profileId: "0104", inClusters: "0003, 0004, 0005, 0006, 0702, 0B04, E000, E001", outClusters: "0019, 000A", model: "TS011F",  deviceJoinName: "Tuya Outlet" // Tuya Smart Plug
     }
 
@@ -155,6 +155,7 @@ def installed() {
 }
 
 def updated() {
+    log.debug "updated()"
     if (powerPolling != state.prevPowerPolling) {
         state.prevPowerPolling = powerPolling
         setPolling()
@@ -175,6 +176,9 @@ def configure() {
     if ((device.getDataValue("manufacturer") == "LDS") || (device.getDataValue("manufacturer") == "REXENSE") || (device.getDataValue("manufacturer") == "frient A/S"))  {
         device.updateDataValue("divisor", "1")
     }
+    
+    setPolling()
+    
     return refresh() +
         zigbee.onOffConfig() +
         zigbee.configureReporting(zigbee.SIMPLE_METERING_CLUSTER, ATTRIBUTE_READING_INFO_SET, DataType.UINT48, 1, 600, 1) +
@@ -189,21 +193,20 @@ def powerRefresh() {
 private setPolling() {
     unschedule()
     if (isPolling) {
-    	log.debug "Scheduling power polling every 1 minute."
+    	log.debug "setPolling() : Scheduling power polling every 1 minute."
         runEvery1Minute(powerRefresh)
     } else {
-        log.debug "Power polling disabled. Power will be reported only if the plug supports real time power reporting."
+        log.debug "setPolling() : Power polling disabled. Power will be reported only if the plug supports real time power reporting."
     }
 }
 
 private getIsPolling() {
-    def pollingDevices = ["_TZ3000_w0qqde0g", "_TZ3000_gjnozsaz"]
+    def pollingTS011FAppVers = ["45", "44", "41", "40"]
     def pushTS0121Devices = ["_TZ3000_8nkb7mof"]
     def manufacturer = device.getDataValue("manufacturer")
     def model = device.getDataValue("model")
-    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingDevices.findIndexOf{ it == manufacturer } != -1) || powerPolling == "1")
+    def appVer = device.getDataValue("application")
+    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingTS011FAppVers.findIndexOf{ it == appVer } != -1) || powerPolling == "1")
 }
 
-private getPowerPolling() {
-	powerPollingValue ?: "0"
-}
+private getPowerPolling() { powerPollingValue ?: "0" }
