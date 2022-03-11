@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.13
+ *  Power Trigger Switch 0.3.14
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -227,11 +227,12 @@ def powerRefresh() {
 }
 
 private getIsPolling() {
-    def pollingDevices = ["_TZ3000_w0qqde0g", "_TZ3000_gjnozsaz"]
+    def pollingTS011FAppVers = ["45", "44", "41", "40"]
     def pushTS0121Devices = ["_TZ3000_8nkb7mof"]
     def manufacturer = device.getDataValue("manufacturer")
     def model = device.getDataValue("model")
-    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingDevices.findIndexOf{ it == manufacturer } != -1) || powerPolling == "1")
+    def appVer = device.getDataValue("application")
+    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (model == "TS011F" && pollingTS011FAppVers.findIndexOf{ it == appVer } != -1) || powerPolling == "1")
 }
 
 private getEventOption() { eventOptionValue ?: "0" }

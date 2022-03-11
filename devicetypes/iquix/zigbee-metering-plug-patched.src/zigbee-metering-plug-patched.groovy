@@ -206,7 +206,7 @@ private getIsPolling() {
     def manufacturer = device.getDataValue("manufacturer")
     def model = device.getDataValue("model")
     def appVer = device.getDataValue("application")
-    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (pollingTS011FAppVers.findIndexOf{ it == appVer } != -1) || powerPolling == "1")
+    return (powerPolling != "2") && ((model == "TS0121" && (pushTS0121Devices.findIndexOf{ it == manufacturer } == -1) ) || (model == "TS011F" && pollingTS011FAppVers.findIndexOf{ it == appVer } != -1) || powerPolling == "1")
 }
 
 private getPowerPolling() { powerPollingValue ?: "0" }
