@@ -1,5 +1,5 @@
 /**
- *  Power Trigger Switch 0.3.14
+ *  Power Trigger Switch 0.3.15
  *	Copyright 2020-2021 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -70,7 +70,7 @@ def parse(String description) {
 		}
 		else if (event.name == "switch") {
 			"zigbee plug is turned "+event.value
-			if (event.value == "off") {
+			if (event.value == "off" && forcePlugOn == "0") {
 				runIn(1, turnPlugOn)
 			}
 		}
@@ -137,14 +137,14 @@ def processPower() {
 
 def off() {
 	sendEvent(name: "switch", value: state.switch)
-	if (eventOption != "0" || state.switch=="on") {
+	if (eventOption != "0" || state.switch == "on") {
 		sendEvent(name: "button", value: "held", displayed: false, isStateChange: true)
 	}
 }
 
 def on() {
 	sendEvent(name: "switch", value: state.switch)
-	if (eventOption != "0" || state.switch=="off") {
+	if (eventOption != "0" || state.switch == "off") {
 		sendEvent(name: "button", value: "pushed", displayed: false, isStateChange: true)
 	}
 }
