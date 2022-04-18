@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.6.1.1-alpha)
+ *	Tuya Window Shade (v.0.6.1.2)
  *	Copyright 2020-2022 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -363,7 +363,7 @@ private directionVal(c) {
 }
 
 private calcDefaultFixpercent() {
-	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs", "aabybja", "mymn92d"]
+	def fixpercent_devices = ["owvfni3", "zbp6j0u", "pzndjez", "qcqqjpb", "ueqqe6k", "sbebbzs", "aabybja", "mymn92d", "0jdjrvi"]
 	def dev = fixpercent_devices.find { productId == it }
 	state.default_fix_percent = isOgaemzt() ? "ogaemzt" : (dev != null)
 	log.debug "default fixpercent for this device is set to ${state.default_fix_percent}"
