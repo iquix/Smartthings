@@ -1,5 +1,5 @@
 /**
- *	Tuya Window Shade (v.0.6.1.2)
+ *	Tuya Window Shade (v.0.6.1.3)
  *	Copyright 2020-2022 Jaewon Park (iquix)
  *
  *	Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TZE200_rmymn92d", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested) * 
 		fingerprint profileId: "0104", manufacturer: "_TZE200_wmcdj3aq", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_fzo2pocs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TZE200_7eue9vhc", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind *        
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5sbebbzs", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_nogaemzt", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
 		fingerprint profileId: "0104", manufacturer: "_TZE200_5zbp6j0u", model: "TS0601", deviceJoinName: "Tuya Window Treatment" // YS-MT750 *
@@ -43,6 +44,7 @@ metadata {
 		fingerprint profileId: "0104", manufacturer: "_TYST11_xaabybja", model: "aabybja", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Curtain (Not fully tested)
 		fingerprint profileId: "0104", manufacturer: "_TYST11_wmcdj3aq", model: "mcdj3aq", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind *
 		fingerprint profileId: "0104", manufacturer: "_TYST11_fzo2pocs", model: "zo2pocs", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind (Not tested)
+		fingerprint profileId: "0104", manufacturer: "_TYST11_7eue9vhc", model: "eue9vhc", deviceJoinName: "Tuya Window Treatment" // Zemismart Zigbee Blind
 		fingerprint profileId: "0104", manufacturer: "_TYST11_5sbebbzs", model: "sbebbzs", deviceJoinName: "Tuya Window Treatment" // Zemismart Blind with Battery
 		fingerprint profileId: "0104", manufacturer: "_TYST11_nogaemzt", model: "ogaemzt", deviceJoinName: "Tuya Window Treatment" // YS-MT750
 		fingerprint profileId: "0104", manufacturer: "_TYST11_5zbp6j0u", model: "zbp6j0u", deviceJoinName: "Tuya Window Treatment" // YS-MT750
@@ -378,7 +380,7 @@ private isZemiCurtain() {
 }
 
 private isZemiBlind() {
-	return (productId == "mcdj3aq" || productId == "zo2pocs")
+	return (productId == "mcdj3aq" || productId == "zo2pocs" || productId == "eue9vhc")
 }
 
 private isOgaemzt() {
